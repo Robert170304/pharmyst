@@ -1,16 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Search, MapPin, List, Map, Filter } from "lucide-react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import PharmacyCard from "@/components/pharmacy-card"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Search, MapPin, List, Map, Filter } from "lucide-react";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
+import PharmacyCard from "@/components/pharmacy-card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // Dummy data
 const pharmacies = [
@@ -44,17 +50,15 @@ const pharmacies = [
     rating: 4.4,
     isOpen: false,
   },
-]
+];
 
 export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [viewMode, setViewMode] = useState<"list" | "map">("list")
-  const [showFilters, setShowFilters] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [showFilters, setShowFilters] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <div className="flex-1 bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           {/* Search Header */}
@@ -86,7 +90,11 @@ export default function SearchPage() {
                   <Map className="h-4 w-4 mr-2" />
                   Map
                 </Button>
-                <Button variant="outline" onClick={() => setShowFilters(!showFilters)} size="sm">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowFilters(!showFilters)}
+                  size="sm"
+                >
                   <Filter className="h-4 w-4 mr-2" />
                   Filters
                 </Button>
@@ -139,7 +147,9 @@ export default function SearchPage() {
               {viewMode === "list" ? (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">{pharmacies.length} pharmacies found</h2>
+                    <h2 className="text-xl font-semibold">
+                      {pharmacies.length} pharmacies found
+                    </h2>
                   </div>
 
                   {pharmacies.map((pharmacy) => (
@@ -150,14 +160,20 @@ export default function SearchPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Map View</CardTitle>
-                    <CardDescription>Interactive map showing nearby pharmacies</CardDescription>
+                    <CardDescription>
+                      Interactive map showing nearby pharmacies
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
                       <div className="text-center">
                         <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-500">Map integration placeholder</p>
-                        <p className="text-sm text-gray-400">Leaflet.js map would be integrated here</p>
+                        <p className="text-gray-500">
+                          Map integration placeholder
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Leaflet.js map would be integrated here
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -170,5 +186,5 @@ export default function SearchPage() {
 
       <Footer />
     </div>
-  )
+  );
 }

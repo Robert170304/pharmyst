@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -6,9 +6,10 @@ export default function Footer() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">MediFinder</h3>
+            <h3 className="text-xl font-bold mb-4">Pharmyst</h3>
             <p className="text-gray-400">
-              Find nearby pharmacies that stock your required medicines with real-time availability.
+              Find nearby pharmacies that stock your required medicines with
+              real-time availability.
             </p>
           </div>
 
@@ -77,9 +78,11 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} MediFinder. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Pharmyst. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }

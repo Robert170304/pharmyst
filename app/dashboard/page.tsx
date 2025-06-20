@@ -1,6 +1,14 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Package, AlertTriangle, TrendingUp, Users } from "lucide-react"
+"use client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Package, AlertTriangle, TrendingUp, Users } from "lucide-react";
+import useAppStore from "@/store/useAppStore";
 
 // Dummy data
 const stats = [
@@ -32,7 +40,7 @@ const stats = [
     changeType: "positive" as const,
     icon: Users,
   },
-]
+];
 
 const recentMedicines = [
   { name: "Paracetamol 500mg", quantity: 150, status: "In Stock" },
@@ -40,9 +48,11 @@ const recentMedicines = [
   { name: "Amoxicillin 250mg", quantity: 45, status: "In Stock" },
   { name: "Cetirizine 10mg", quantity: 5, status: "Low Stock" },
   { name: "Aspirin 325mg", quantity: 89, status: "In Stock" },
-]
+];
 
 export default function DashboardPage() {
+  const { userData } = useAppStore();
+
   return (
     <div className="space-y-6">
       <div>
@@ -55,12 +65,20 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.title}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                {stat.title}
+              </CardTitle>
               <stat.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p className={`text-xs ${stat.changeType === "positive" ? "text-green-600" : "text-red-600"}`}>
+              <p
+                className={`text-xs ${
+                  stat.changeType === "positive"
+                    ? "text-green-600"
+                    : "text-red-600"
+                }`}
+              >
                 {stat.change} from last month
               </p>
             </CardContent>
@@ -72,7 +90,9 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Recent Medicine Updates</CardTitle>
-          <CardDescription>Latest changes to your medicine inventory</CardDescription>
+          <CardDescription>
+            Latest changes to your medicine inventory
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -80,14 +100,22 @@ export default function DashboardPage() {
               <div key={index} className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{medicine.name}</p>
-                  <p className="text-sm text-gray-500">Quantity: {medicine.quantity}</p>
+                  <p className="text-sm text-gray-500">
+                    Quantity: {medicine.quantity}
+                  </p>
                 </div>
-                <Badge variant={medicine.status === "In Stock" ? "default" : "destructive"}>{medicine.status}</Badge>
+                <Badge
+                  variant={
+                    medicine.status === "In Stock" ? "default" : "destructive"
+                  }
+                >
+                  {medicine.status}
+                </Badge>
               </div>
             ))}
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

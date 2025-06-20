@@ -1,9 +1,17 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { MapPin, Phone, Clock, Star } from "lucide-react"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import MedicineTable from "@/components/medicine-table"
+"use client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Phone, Clock, Star } from "lucide-react";
+import Footer from "@/components/footer";
+import MedicineTable from "@/components/medicine-table";
+import { useEffect, useState } from "react";
+import { getMedicines } from "@/lib/api";
 
 // Dummy data
 const pharmacy = {
@@ -15,7 +23,7 @@ const pharmacy = {
   reviews: 124,
   hours: "Mon-Sat: 8:00 AM - 10:00 PM, Sun: 9:00 AM - 8:00 PM",
   isOpen: true,
-}
+};
 
 const medicines = [
   {
@@ -46,13 +54,21 @@ const medicines = [
     expiryDate: "2025-08-30",
     price: "$6.75",
   },
-]
+];
 
-export default function PharmacyDetailPage({ params }: { params: { id: string } }) {
+export default function PharmacyDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const [medicines, setMedicines] = useState([]);
+
+  useEffect(() => {
+    getMedicines().then(setMedicines);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <div className="flex-1 bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           {/* Pharmacy Header */}
@@ -60,7 +76,9 @@ export default function PharmacyDetailPage({ params }: { params: { id: string } 
             <CardHeader>
               <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div>
-                  <CardTitle className="text-2xl mb-2">{pharmacy.name}</CardTitle>
+                  <CardTitle className="text-2xl mb-2">
+                    {pharmacy.name}
+                  </CardTitle>
                   <div className="space-y-2">
                     <div className="flex items-center text-gray-600">
                       <MapPin className="h-4 w-4 mr-2" />
@@ -80,7 +98,9 @@ export default function PharmacyDetailPage({ params }: { params: { id: string } 
                   <div className="flex items-center mb-2">
                     <Star className="h-4 w-4 text-yellow-400 mr-1" />
                     <span className="font-semibold">{pharmacy.rating}</span>
-                    <span className="text-gray-500 ml-1">({pharmacy.reviews} reviews)</span>
+                    <span className="text-gray-500 ml-1">
+                      ({pharmacy.reviews} reviews)
+                    </span>
                   </div>
                   <Badge variant={pharmacy.isOpen ? "default" : "secondary"}>
                     {pharmacy.isOpen ? "Open Now" : "Closed"}
@@ -94,7 +114,9 @@ export default function PharmacyDetailPage({ params }: { params: { id: string } 
           <Card>
             <CardHeader>
               <CardTitle>Available Medicines</CardTitle>
-              <CardDescription>Current stock of medicines available at this pharmacy</CardDescription>
+              <CardDescription>
+                Current stock of medicines available at this pharmacy
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <MedicineTable medicines={medicines} />
@@ -105,5 +127,5 @@ export default function PharmacyDetailPage({ params }: { params: { id: string } 
 
       <Footer />
     </div>
-  )
+  );
 }

@@ -1,21 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Textarea } from "@/components/ui/textarea"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
+import { useActionState, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { registerPharma } from "@/lib/api";
+import useAppStore from "@/store/useAppStore";
 
 export default function RegisterPage() {
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { toast } = useToast();
+  const { setUserData } = useAppStore();
   const [formData, setFormData] = useState({
     pharmacyName: "",
     ownerName: "",
@@ -26,18 +35,18 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Error",
         description: "Passwords do not match.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (!formData.agreeToTerms) {
@@ -45,35 +54,45 @@ export default function RegisterPage() {
         title: "Error",
         description: "Please agree to the terms and conditions.",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     // Simulate registration
-    toast({
-      title: "Registration Successful",
-      description: "Your pharmacy account has been created successfully!",
-    })
-    router.push("/auth/login")
-  }
+    registerPharma(formData).then((data) => {
+      console.log("🚀 ~ registerPharma ~ data:", data);
+      setUserData({ ...data.data });
+      toast({
+        title: "Registration Successful",
+        description: "Your pharmacy account has been created successfully!",
+      });
+      router.push("/auth/dashboard");
+    });
+  };
 
   const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">MediFinder</h1>
-          <h2 className="text-2xl font-bold text-gray-900">Register Your Pharmacy</h2>
-          <p className="mt-2 text-gray-600">Join our network of verified pharmacies</p>
+          <h1 className="text-3xl font-bold text-blue-600 mb-2">Pharmyst</h1>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Register Your Pharmacy
+          </h2>
+          <p className="mt-2 text-gray-600">
+            Join our network of verified pharmacies
+          </p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Pharmacy Registration</CardTitle>
-            <CardDescription>Fill in your pharmacy details to create an account</CardDescription>
+            <CardDescription>
+              Fill in your pharmacy details to create an account
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,7 +102,9 @@ export default function RegisterPage() {
                   <Input
                     id="pharmacyName"
                     value={formData.pharmacyName}
-                    onChange={(e) => handleInputChange("pharmacyName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("pharmacyName", e.target.value)
+                    }
                     placeholder="e.g., HealthPlus Pharmacy"
                     required
                   />
@@ -94,7 +115,9 @@ export default function RegisterPage() {
                   <Input
                     id="ownerName"
                     value={formData.ownerName}
-                    onChange={(e) => handleInputChange("ownerName", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("ownerName", e.target.value)
+                    }
                     placeholder="e.g., Dr. John Smith"
                     required
                   />
@@ -143,7 +166,9 @@ export default function RegisterPage() {
                 <Input
                   id="licenseNumber"
                   value={formData.licenseNumber}
-                  onChange={(e) => handleInputChange("licenseNumber", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("licenseNumber", e.target.value)
+                  }
                   placeholder="e.g., PH123456789"
                   required
                 />
@@ -156,7 +181,9 @@ export default function RegisterPage() {
                     id="password"
                     type="password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     placeholder="Create a strong password"
                     required
                   />
@@ -168,7 +195,9 @@ export default function RegisterPage() {
                     id="confirmPassword"
                     type="password"
                     value={formData.confirmPassword}
-                    onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("confirmPassword", e.target.value)
+                    }
                     placeholder="Confirm your password"
                     required
                   />
@@ -179,7 +208,9 @@ export default function RegisterPage() {
                 <Checkbox
                   id="terms"
                   checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("agreeToTerms", checked as boolean)
+                  }
                 />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{" "}
@@ -201,7 +232,10 @@ export default function RegisterPage() {
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{" "}
-                <Link href="/auth/login" className="text-blue-600 hover:underline">
+                <Link
+                  href="/auth/login"
+                  className="text-blue-600 hover:underline"
+                >
                   Sign in here
                 </Link>
               </p>
@@ -210,5 +244,5 @@ export default function RegisterPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
