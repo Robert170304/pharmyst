@@ -11,7 +11,7 @@ import { MapPin, Phone, Clock, Star } from "lucide-react";
 import Footer from "@/components/footer";
 import MedicineTable from "@/components/medicine-table";
 import { useEffect, useState } from "react";
-import { getMedicines } from "@/lib/api";
+import { getPharmacyMedicines } from "@/lib/api";
 
 // Dummy data
 const pharmacy = {
@@ -64,7 +64,7 @@ export default function PharmacyDetailPage({
   const [medicines, setMedicines] = useState([]);
 
   useEffect(() => {
-    getMedicines().then(setMedicines);
+    getPharmacyMedicines({ pharmacyId: params.id }).then(setMedicines);
   }, []);
 
   return (

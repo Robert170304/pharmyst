@@ -58,7 +58,6 @@ export default function RegisterPage() {
       return;
     }
 
-    // Simulate registration
     registerPharma(formData).then((data) => {
       console.log("🚀 ~ registerPharma ~ data:", data);
       setUserData({ ...data.data });

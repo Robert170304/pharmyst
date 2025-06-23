@@ -7,36 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getStockStatusVariant, isExpiringSoon } from "@/lib/utils";
 import moment from "moment";
-interface Medicine {
-  id: string;
-  name: string;
-  quantity: number;
-  expiryDate: string;
-  price: string;
-}
-
+import { startCase } from "lodash";
 interface MedicineTableProps {
   medicines: Medicine[];
 }
 
 export default function MedicineTable({ medicines }: MedicineTableProps) {
-  const getStockStatus = (quantity: number) => {
-    if (quantity === 0)
-      return { status: "Out of Stock", variant: "destructive" as const };
-    if (quantity < 20)
-      return { status: "Low Stock", variant: "secondary" as const };
-    return { status: "In Stock", variant: "default" as const };
-  };
-
-  const isExpiringSoon = (expiryDate: string) => {
-    const expiry = new Date(expiryDate);
-    const today = new Date();
-    const diffTime = expiry.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 90; // Expiring within 3 months
-  };
-
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -51,11 +29,13 @@ export default function MedicineTable({ medicines }: MedicineTableProps) {
         </TableHeader>
         <TableBody>
           {medicines.map((medicine) => {
-            const stockInfo = getStockStatus(medicine.quantity);
+            const stockStatusVariant = getStockStatusVariant(
+              medicine.availability
+            );
             const expiringSoon = isExpiringSoon(medicine.expiryDate);
 
             return (
-              <TableRow key={medicine.id}>
+              <TableRow key={medicine._id}>
                 <TableCell className="font-medium">{medicine.name}</TableCell>
                 <TableCell>{medicine.quantity}</TableCell>
                 <TableCell>{medicine.price}</TableCell>
@@ -73,7 +53,9 @@ export default function MedicineTable({ medicines }: MedicineTableProps) {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={stockInfo.variant}>{stockInfo.status}</Badge>
+                  <Badge variant={stockStatusVariant}>
+                    {startCase(medicine.availability)}
+                  </Badge>
                 </TableCell>
               </TableRow>
             );
