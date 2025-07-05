@@ -27,7 +27,6 @@ import useAppStore from "@/store/useAppStore";
 import moment from "moment";
 import { getStockStatusVariant, isExpiringSoon } from "@/lib/utils";
 import { startCase } from "lodash";
-import { Router } from "express";
 import { useRouter } from "next/navigation";
 // Dummy data
 const initialMedicines = [

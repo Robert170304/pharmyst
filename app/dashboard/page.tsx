@@ -10,48 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Package, AlertTriangle, TrendingUp, Users } from "lucide-react";
 import useAppStore from "@/store/useAppStore";
 import { useEffect, useState } from "react";
-import { getPharmacyStats } from "@/lib/api";
-
-// Dummy data
-const stats = [
-  {
-    title: "Total Medicines",
-    value: "247",
-    change: "+12%",
-    changeType: "positive" as const,
-    icon: Package,
-  },
-  {
-    title: "Low Stock Items",
-    value: "8",
-    change: "+2",
-    changeType: "negative" as const,
-    icon: AlertTriangle,
-  },
-  {
-    title: "Monthly Sales",
-    value: "$12,450",
-    change: "+18%",
-    changeType: "positive" as const,
-    icon: TrendingUp,
-  },
-  {
-    title: "Active Customers",
-    value: "1,234",
-    change: "+5%",
-    changeType: "positive" as const,
-    icon: Users,
-  },
-];
-
-const recentMedicines = [
-  { name: "Paracetamol 500mg", quantity: 150, status: "In Stock" },
-  { name: "Ibuprofen 400mg", quantity: 12, status: "Low Stock" },
-  { name: "Amoxicillin 250mg", quantity: 45, status: "In Stock" },
-  { name: "Cetirizine 10mg", quantity: 5, status: "Low Stock" },
-  { name: "Aspirin 325mg", quantity: 89, status: "In Stock" },
-];
-
+import { getPharmacyStats, getRecentMedicines } from "@/lib/api";
+import { getStockStatusVariant } from "@/lib/utils";
+import { Box, Flex, Text } from "@radix-ui/themes";
 type Stat = {
   title: string;
   value: string;
@@ -63,6 +24,7 @@ type Stat = {
 export default function DashboardPage() {
   const { userData } = useAppStore();
   const [stats, setStats] = useState<Stat[]>([]);
+  const [recentMedicines, setRecentMedicines] = useState<Medicine[]>([]);
 
   const getStateIcon = (stateKey: string) => {
     switch (stateKey) {
@@ -82,6 +44,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (userData.id) {
       getPharmacyStats().then(setStats);
+      getRecentMedicines().then(setRecentMedicines);
     }
   }, [userData]);
 
@@ -106,7 +69,8 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
-                <p
+                <Text
+                  as="p"
                   className={`text-xs ${
                     stat.changeType === "positive"
                       ? "text-green-600"
@@ -114,7 +78,7 @@ export default function DashboardPage() {
                   }`}
                 >
                   {stat.change} from last month
-                </p>
+                </Text>
               </CardContent>
             </Card>
           );
@@ -130,25 +94,32 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentMedicines.map((medicine, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{medicine.name}</p>
-                  <p className="text-sm text-gray-500">
-                    Quantity: {medicine.quantity}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    medicine.status === "In Stock" ? "default" : "destructive"
-                  }
+          <Box className="space-y-4">
+            {recentMedicines.map((medicine, index) => {
+              const stockStatusVariant = getStockStatusVariant(
+                medicine.availability
+              );
+              return (
+                <Flex
+                  as="div"
+                  justify="between"
+                  align="center"
+                  key={index}
+                  className="flex items-center justify-between"
                 >
-                  {medicine.status}
-                </Badge>
-              </div>
-            ))}
-          </div>
+                  <Flex direction="column">
+                    <Text className="font-medium">{medicine.name}</Text>
+                    <Text className="text-sm text-gray-500">
+                      Quantity: {medicine.quantity}
+                    </Text>
+                  </Flex>
+                  <Badge variant={stockStatusVariant}>
+                    {medicine.availability}
+                  </Badge>
+                </Flex>
+              );
+            })}
+          </Box>
         </CardContent>
       </Card>
     </div>

@@ -30,6 +30,25 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => {
+    if (
+      response?.data?.isUnauthenticated === true ||
+      response?.status === 401
+    ) {
+      console.log("⚠️ user is unauthenticated, logging out...");
+      useAppStore.getState().logout(); // or clear userData
+      // optionally redirect:
+      window.location.replace("/login");
+      return Promise.reject(new Error("Session expired, please log in again."));
+    }
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const getPharmacyMedicines = async (
   pharmacy: any,
   config?: AxiosRequestConfig
@@ -64,7 +83,9 @@ export const getPharmacyMedicines = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -96,7 +117,9 @@ export const addMedicine = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -132,7 +155,9 @@ export const updateMedicine = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
 
@@ -161,7 +186,9 @@ export const loginPharmacy = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -172,7 +199,7 @@ export const registerPharma = async (
   try {
     const response = await api.post(API_URLS.REGISTER_PHARMACY, creds, config);
     if (
-      response.status === 400 ||
+      response.data.status === 400 ||
       (response.status !== 200 && response.status !== 201)
     ) {
       toast({
@@ -189,7 +216,9 @@ export const registerPharma = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -216,7 +245,9 @@ export const getPharmacyStats = async (config?: AxiosRequestConfig) => {
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -247,7 +278,9 @@ export const deleteMedicine = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
   }
 };
 
@@ -277,6 +310,94 @@ export const getMedicineDetails = async (
           "An Axios error occurred"
       );
     }
-    throw new Error(error instanceof Error ? error.message : String(error));
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const getRecentMedicines = async (config?: AxiosRequestConfig) => {
+  try {
+    const response = await api.get(API_URLS.GET_RECENT_MEDICINES, config);
+    if (response.status !== 200 || response.data.status === false) {
+      toast({
+        description: response.data.message || "Get recent medicines failed",
+      });
+      throw new Error(response.data.message || "Get recent medicines failed");
+    }
+    return response.data.medicines;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const searchMedicines = async (
+  query: searchParamsDTO,
+  config?: AxiosRequestConfig
+) => {
+  try {
+    const response = await api.get(
+      `${API_URLS.SEARCH_MEDICINES}?name=${query.name}&category=${query.category}&availability=${query.availability}&manufacturer=${query.manufacturer}&expiryDate=${query.expiryDate}&pharmacy=${query.pharmacy}&page=${query.page}&limit=${query.limit}`,
+      config
+    );
+    if (response.status !== 200 || response.data.status === false) {
+      toast({
+        description: response.data.message || "Search medicines failed",
+      });
+      throw new Error(response.data.message || "Search medicines failed");
+    }
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const getPharmacyDetails = async (
+  pharmacyId: string,
+  config?: AxiosRequestConfig
+) => {
+  try {
+    const API_URL = `${API_URLS.GET_PHARMACY_DETAILS}/${pharmacyId}`;
+    const response = await api.get(API_URL, config);
+    if (response.status !== 200 || response.data.status === false) {
+      toast({
+        description: response.data.message || "Get pharmacy details failed",
+      });
+      throw new Error(
+        `API error: ${response.status} - ${
+          response.data?.message || "Get pharmacy details failed"
+        }`
+      );
+    }
+    return response.data.pharmacy;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 };
