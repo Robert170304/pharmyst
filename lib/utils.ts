@@ -21,19 +21,6 @@ export const isExpiringSoon = (expiryDate: string) => {
   return diffDays <= 90; // Expiring within 3 months
 };
 
-// export const getStatusBadge = (status: string) => {
-//   switch (status) {
-//     case "In Stock":
-//       return <Badge variant="default">In Stock</Badge>;
-//     case "Low Stock":
-//       return <Badge variant="destructive">Low Stock</Badge>;
-//     case "Out of Stock":
-//       return <Badge variant="secondary">Out of Stock</Badge>;
-//     default:
-//       return <Badge variant="secondary">{status}</Badge>;
-//   }
-// };
-
 export const API_URLS = {
   GET_PHARMACY_MEDICINES: "medicines/pharmacy",
   GET_MEDICINE_DETAILS: "medicines",
@@ -43,4 +30,7 @@ export const API_URLS = {
   REGISTER_PHARMACY: "auth/pharmacy/register",
   GET_PHARMACY_STATS: "pharmacy/stats",
   DELETE_MEDICINE: "medicines",
+  GET_RECENT_MEDICINES: "medicines/recent-updates",
+  SEARCH_MEDICINES: "medicines/search",
+  GET_PHARMACY_DETAILS: "pharmacy/details",
 };

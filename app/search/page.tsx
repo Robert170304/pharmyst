@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,6 +17,8 @@ import Footer from "@/components/footer";
 import PharmacyCard from "@/components/pharmacy-card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { searchMedicines } from "@/lib/api";
+import { toast } from "@/hooks/use-toast";
 
 // Dummy data
 const pharmacies = [
@@ -53,9 +55,56 @@ const pharmacies = [
 ];
 
 export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueries, setSearchQueries] = useState({
+    name: "",
+    category: "",
+    availability: "all",
+    manufacturer: "",
+    expiryDate: "",
+    pharmacy: "",
+    page: 1,
+    limit: 10,
+  });
+  const [searchResults, setSearchResults] = useState<SearchPharmacyItemDTO[]>(
+    []
+  );
+  const [pagination, setPagination] = useState({
+    limit: 10,
+    page: 1,
+    totalPages: 1,
+    totalResults: 0,
+  });
+  const [searchLoading, setSearchLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [showFilters, setShowFilters] = useState(false);
+
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      setSearchLoading(true);
+      try {
+        const results = await searchMedicines(searchQueries);
+        console.log("🚀 ~ fetchSearchResults ~ results:", results);
+        setSearchResults(results.data || []);
+        setPagination(
+          results.pagination || {
+            limit: 10,
+            page: 1,
+            totalPages: 1,
+            totalResults: 0,
+          }
+        );
+      } catch (error) {
+        toast({
+          description:
+            error instanceof Error ? error.message : "An error occurred",
+        });
+      } finally {
+        setSearchLoading(false);
+      }
+    };
+
+    fetchSearchResults();
+  }, [searchQueries]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -68,8 +117,10 @@ export default function SearchPage() {
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search for medicines..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchQueries.name}
+                  onChange={(e) =>
+                    setSearchQueries({ ...searchQueries, name: e.target.value })
+                  }
                   className="pl-10"
                 />
               </div>
@@ -91,7 +142,7 @@ export default function SearchPage() {
                   Map
                 </Button>
                 <Button
-                  variant="outline"
+                  variant={showFilters ? "default" : "outline"}
                   onClick={() => setShowFilters(!showFilters)}
                   size="sm"
                 >
@@ -148,12 +199,17 @@ export default function SearchPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold">
-                      {pharmacies.length} pharmacies found
+                      {searchResults.length}{" "}
+                      {searchResults.length === 1 ? "pharmacy" : "pharmacies"}{" "}
+                      found
                     </h2>
                   </div>
 
-                  {pharmacies.map((pharmacy) => (
-                    <PharmacyCard key={pharmacy.id} pharmacy={pharmacy} />
+                  {searchResults.map((result: SearchPharmacyItemDTO) => (
+                    <PharmacyCard
+                      key={result.pharmacy._id}
+                      searchItem={result}
+                    />
                   ))}
                 </div>
               ) : (

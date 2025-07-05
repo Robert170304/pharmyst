@@ -1,53 +1,41 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { MapPin, Phone, Star } from "lucide-react"
-import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { MapPin, Phone, Star } from "lucide-react";
+import Link from "next/link";
 
 interface PharmacyCardProps {
-  pharmacy: {
-    id: string
-    name: string
-    address: string
-    distance: string
-    phone: string
-    stockStatus: string
-    rating: number
-    isOpen: boolean
-  }
+  searchItem: SearchPharmacyItemDTO;
 }
 
-export default function PharmacyCard({ pharmacy }: PharmacyCardProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "In Stock":
-        return "default"
-      case "Low Stock":
-        return "secondary"
-      case "Out of Stock":
-        return "destructive"
-      default:
-        return "secondary"
-    }
-  }
+export default function PharmacyCard({ searchItem }: PharmacyCardProps) {
+  // const stockStatusVariant = getStockStatusVariant(searchItem.availability);
 
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-lg">{pharmacy.name}</CardTitle>
+            <CardTitle className="text-lg">
+              {searchItem.pharmacy.pharmacyName}
+            </CardTitle>
             <div className="flex items-center text-sm text-gray-600 mt-1">
               <MapPin className="h-4 w-4 mr-1" />
-              {pharmacy.address} • {pharmacy.distance}
+              {searchItem.pharmacy.address} • {searchItem.pharmacy.distance}
             </div>
           </div>
           <div className="text-right">
             <div className="flex items-center mb-1">
               <Star className="h-4 w-4 text-yellow-400 mr-1" />
-              <span className="text-sm font-medium">{pharmacy.rating}</span>
+              <span className="text-sm font-medium">
+                {searchItem.pharmacy.rating}
+              </span>
             </div>
-            <Badge variant={pharmacy.isOpen ? "default" : "secondary"}>{pharmacy.isOpen ? "Open" : "Closed"}</Badge>
+            <Badge
+              variant={searchItem.pharmacy.isOpen ? "default" : "secondary"}
+            >
+              {searchItem.pharmacy.isOpen ? "Open" : "Closed"}
+            </Badge>
           </div>
         </div>
       </CardHeader>
@@ -56,15 +44,15 @@ export default function PharmacyCard({ pharmacy }: PharmacyCardProps) {
           <div className="space-y-2">
             <div className="flex items-center text-sm text-gray-600">
               <Phone className="h-4 w-4 mr-2" />
-              {pharmacy.phone}
+              {searchItem.pharmacy.phone}
             </div>
-            <Badge variant={getStatusColor(pharmacy.stockStatus) as any}>{pharmacy.stockStatus}</Badge>
+            {/* <Badge variant={stockStatusVariant}>{medicine.availability}</Badge> */}
           </div>
-          <Link href={`/pharmacy/${pharmacy.id}`}>
+          <Link href={`/pharmacy/${searchItem.pharmacy._id}`}>
             <Button>View Details</Button>
           </Link>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
