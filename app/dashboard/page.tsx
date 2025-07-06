@@ -23,6 +23,7 @@ type Stat = {
 
 export default function DashboardPage() {
   const { userData } = useAppStore();
+  console.log("🚀 ~ DashboardPage ~ userData:", userData);
   const [stats, setStats] = useState<Stat[]>([]);
   const [recentMedicines, setRecentMedicines] = useState<Medicine[]>([]);
 
@@ -43,8 +44,21 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (userData.id) {
-      getPharmacyStats().then(setStats);
-      getRecentMedicines().then(setRecentMedicines);
+      getPharmacyStats()
+        .then((statsData) => {
+          console.log("🚀 ~ getPharmacyStats ~ statsData:", statsData);
+          setStats(statsData || []);
+        })
+        .catch(() => {
+          setStats([]);
+        });
+      getRecentMedicines()
+        .then((recentMeds) => {
+          setRecentMedicines(recentMeds || []);
+        })
+        .catch(() => {
+          setRecentMedicines([]);
+        });
     }
   }, [userData]);
 
@@ -95,30 +109,45 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <Box className="space-y-4">
-            {recentMedicines.map((medicine, index) => {
-              const stockStatusVariant = getStockStatusVariant(
-                medicine.availability
-              );
-              return (
-                <Flex
-                  as="div"
-                  justify="between"
-                  align="center"
-                  key={index}
-                  className="flex items-center justify-between"
-                >
-                  <Flex direction="column">
-                    <Text className="font-medium">{medicine.name}</Text>
-                    <Text className="text-sm text-gray-500">
-                      Quantity: {medicine.quantity}
-                    </Text>
-                  </Flex>
-                  <Badge variant={stockStatusVariant}>
-                    {medicine.availability}
-                  </Badge>
+            {!recentMedicines.length ? (
+              <Flex
+                as="div"
+                justify="between"
+                align="center"
+                className="flex items-center justify-between"
+              >
+                <Flex className="w-full" align="center" direction="column">
+                  <Text className="text-sm text-gray-500">
+                    There is no recent medicine update yet.
+                  </Text>
                 </Flex>
-              );
-            })}
+              </Flex>
+            ) : (
+              recentMedicines.map((medicine, index) => {
+                const stockStatusVariant = getStockStatusVariant(
+                  medicine.availability
+                );
+                return (
+                  <Flex
+                    as="div"
+                    justify="between"
+                    align="center"
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <Flex direction="column">
+                      <Text className="font-medium">{medicine.name}</Text>
+                      <Text className="text-sm text-gray-500">
+                        Quantity: {medicine.quantity}
+                      </Text>
+                    </Flex>
+                    <Badge variant={stockStatusVariant}>
+                      {medicine.availability}
+                    </Badge>
+                  </Flex>
+                );
+              })
+            )}
           </Box>
         </CardContent>
       </Card>

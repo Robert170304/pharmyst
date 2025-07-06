@@ -37,10 +37,15 @@ api.interceptors.response.use(
       response?.status === 401
     ) {
       console.log("⚠️ user is unauthenticated, logging out...");
-      useAppStore.getState().logout(); // or clear userData
-      // optionally redirect:
-      window.location.replace("/login");
-      return Promise.reject(new Error("Session expired, please log in again."));
+      useAppStore.getState().logout();
+      useAppStore.getState().triggerRedirect();
+      toast({
+        description: "Session expired, please log in again.",
+      });
+      // REJECT the promise so try/catch goes to catch
+      return Promise.reject(
+        new axios.Cancel("Session expired, please log in again.")
+      );
     }
     return response;
   },
@@ -76,6 +81,11 @@ export const getPharmacyMedicines = async (
 
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -110,6 +120,11 @@ export const addMedicine = async (
     }
     return response.data.medicine;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -148,6 +163,11 @@ export const updateMedicine = async (
     }
     return response.data.medicine;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -169,7 +189,7 @@ export const loginPharmacy = async (
     const response = await api.post(API_URLS.LOGIN_PHARMACY, creds, config);
     console.log("🚀 ~ response:", response);
     if (
-      response.status === 400 ||
+      !response.data.status ||
       (response.status !== 200 && response.status !== 201)
     ) {
       toast({
@@ -179,6 +199,11 @@ export const loginPharmacy = async (
     }
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -199,7 +224,7 @@ export const registerPharma = async (
   try {
     const response = await api.post(API_URLS.REGISTER_PHARMACY, creds, config);
     if (
-      response.data.status === 400 ||
+      !response.data.status ||
       (response.status !== 200 && response.status !== 201)
     ) {
       toast({
@@ -209,6 +234,43 @@ export const registerPharma = async (
     }
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const verifyEmail = async (token: any, config?: AxiosRequestConfig) => {
+  try {
+    const response = await api.post(API_URLS.VERIFY_PHARMACY, token, config);
+    if (
+      !response.data.status ||
+      (response.status !== 200 && response.status !== 201)
+    ) {
+      toast({
+        description: response.data.message || "Verification failed",
+      });
+      throw new Error(response.data.message || "Verification failed");
+    }
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -238,6 +300,11 @@ export const getPharmacyStats = async (config?: AxiosRequestConfig) => {
     }
     return response.data.stats;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -271,6 +338,11 @@ export const deleteMedicine = async (
     }
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -303,6 +375,11 @@ export const getMedicineDetails = async (
     }
     return response.data.medicine;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -327,6 +404,11 @@ export const getRecentMedicines = async (config?: AxiosRequestConfig) => {
     }
     return response.data.medicines;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -357,6 +439,11 @@ export const searchMedicines = async (
     }
     return response.data;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||
@@ -389,6 +476,11 @@ export const getPharmacyDetails = async (
     }
     return response.data.pharmacy;
   } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
     if (error instanceof AxiosError) {
       throw new Error(
         error.response?.data?.message ||

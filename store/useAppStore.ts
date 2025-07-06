@@ -13,6 +13,9 @@ interface AppState {
   userData: UserData;
   setUserData: (userData: UserData) => void;
   logout: () => void;
+  shouldRedirect: boolean;
+  triggerRedirect: () => void;
+  clearRedirect: () => void;
 }
 
 const initialUserData: UserData = {
@@ -26,9 +29,12 @@ const initialUserData: UserData = {
 const useAppStore = create(
   persist<AppState>(
     (set) => ({
+      shouldRedirect: false,
       userData: initialUserData,
       setUserData: (userData) => set({ userData }),
       logout: () => set({ userData: initialUserData }),
+      triggerRedirect: () => set({ shouldRedirect: true }),
+      clearRedirect: () => set({ shouldRedirect: false }),
     }),
     {
       name: "app-store",

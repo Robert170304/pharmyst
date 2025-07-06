@@ -10,7 +10,7 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathName = usePathname();
   console.log("🚀 ~ Navbar ~ pathName:", pathName);
-  if (pathName.includes("dashboard")) {
+  if (pathName.includes("dashboard") || pathName.includes("verify")) {
     return null;
   }
   return (

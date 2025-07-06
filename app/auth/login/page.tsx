@@ -35,6 +35,7 @@ export default function LoginPage() {
     e.preventDefault();
     loginPharmacy({ email: formData.email, password: formData.password }).then(
       (data) => {
+        if (!data?.pharmacy) return;
         setUserData({ ...data.pharmacy, token: data.token });
         toast({
           title: "Login Successful",

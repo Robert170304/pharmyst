@@ -28,6 +28,7 @@ export const API_URLS = {
   EDIT_MEDICINE: "medicines",
   LOGIN_PHARMACY: "auth/pharmacy/login",
   REGISTER_PHARMACY: "auth/pharmacy/register",
+  VERIFY_PHARMACY: "auth/pharmacy/verify",
   GET_PHARMACY_STATS: "pharmacy/stats",
   DELETE_MEDICINE: "medicines",
   GET_RECENT_MEDICINES: "medicines/recent-updates",

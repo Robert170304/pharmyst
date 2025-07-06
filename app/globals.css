@@ -24,6 +24,17 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+
+    /* Custom theme colors */
+    --color-primary: #2563eb;
+    --color-secondary: #111827;
+    --color-text: #4b5563;
+    --color-success: #22c55e;
+    --color-warning: #f59e42;
+    --color-error: #ef4444;
+    --color-info: #0ea5e9;
+    --color-background-light: #f8fafc;
+    --color-background-dark: #1e293b;
   }
 
   .dark {
@@ -46,6 +57,17 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 94.1%;
+
+    /* Custom theme colors for dark mode */
+    --color-primary: #2563eb;
+    --color-secondary: #111827;
+    --color-text: #d1d5db;
+    --color-success: #22c55e;
+    --color-warning: #f59e42;
+    --color-error: #ef4444;
+    --color-info: #38bdf8;
+    --color-background-light: #1e293b;
+    --color-background-dark: #0f172a;
   }
 }
 

@@ -28,54 +28,6 @@ import moment from "moment";
 import { getStockStatusVariant, isExpiringSoon } from "@/lib/utils";
 import { startCase } from "lodash";
 import { useRouter } from "next/navigation";
-// Dummy data
-const initialMedicines = [
-  {
-    id: "1",
-    name: "Paracetamol 500mg",
-    category: "Pain Relief",
-    quantity: 150,
-    price: 5.99,
-    expiryDate: "2025-06-15",
-    status: "In Stock",
-  },
-  {
-    id: "2",
-    name: "Ibuprofen 400mg",
-    category: "Pain Relief",
-    quantity: 12,
-    price: 8.49,
-    expiryDate: "2025-03-22",
-    status: "Low Stock",
-  },
-  {
-    id: "3",
-    name: "Amoxicillin 250mg",
-    category: "Antibiotics",
-    quantity: 45,
-    price: 12.99,
-    expiryDate: "2024-12-10",
-    status: "In Stock",
-  },
-  {
-    id: "4",
-    name: "Cetirizine 10mg",
-    category: "Cold & Flu",
-    quantity: 5,
-    price: 6.75,
-    expiryDate: "2025-08-30",
-    status: "Low Stock",
-  },
-  {
-    id: "5",
-    name: "Vitamin D3 1000IU",
-    category: "Vitamins",
-    quantity: 89,
-    price: 15.99,
-    expiryDate: "2025-11-20",
-    status: "In Stock",
-  },
-];
 
 export default function ManageStockPage() {
   const { toast } = useToast();

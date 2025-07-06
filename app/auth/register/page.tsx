@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,28 +14,27 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { registerPharma } from "@/lib/api";
-import useAppStore from "@/store/useAppStore";
+import AddressAutocomplete from "@/components/AddressAutocomplete/AddressAutocomplete";
+import Loader from "@/components/ui/loader";
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const { toast } = useToast();
-  const { setUserData } = useAppStore();
-  const [formData, setFormData] = useState({
+  const initSignupFormObj = {
     pharmacyName: "",
     ownerName: "",
     email: "",
     phone: "",
-    address: "",
+    address: { location: "", lat: 0, lng: 0 },
     licenseNumber: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
-  });
+  };
+  const { toast } = useToast();
+  const [formData, setFormData] = useState(initSignupFormObj);
+  const [signupLoader, setSignUpLoader] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,19 +56,25 @@ export default function RegisterPage() {
       });
       return;
     }
+    setSignUpLoader(true);
 
-    registerPharma(formData).then((data) => {
-      console.log("🚀 ~ registerPharma ~ data:", data);
-      setUserData({ ...data.data });
-      toast({
-        title: "Registration Successful",
-        description: "Your pharmacy account has been created successfully!",
+    registerPharma(formData)
+      .then((data) => {
+        console.log("🚀 ~ registerPharma ~ data:", data);
+        if (!data.data?.id) return;
+        toast({
+          title: "Registration Successful",
+          description: data.message,
+        });
+        setFormData(initSignupFormObj);
+        setSignUpLoader(false);
+      })
+      .catch(() => {
+        setSignUpLoader(false);
       });
-      router.push("/auth/dashboard");
-    });
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -151,12 +156,22 @@ export default function RegisterPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="address">Pharmacy Address *</Label>
-                <Textarea
+                <AddressAutocomplete
                   id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  value={formData.address.location}
+                  onSelect={(placeObject) => {
+                    console.log("🚀 ~ RegisterPage ~ val 1:", placeObject);
+                    if (!placeObject.geometry) return;
+                    handleInputChange("address", {
+                      location: placeObject.formatted_address,
+                      lat: placeObject?.geometry.location.lat(),
+                      lng: placeObject?.geometry.location.lng(),
+                    });
+                  }}
                   placeholder="123 Main Street, City, State, ZIP"
-                  required
+                  onChange={(val) => {
+                    console.log("🚀 ~ RegisterPage ~ val 2:", val);
+                  }}
                 />
               </div>
 
@@ -223,8 +238,15 @@ export default function RegisterPage() {
                 </Label>
               </div>
 
-              <Button type="submit" className="w-full">
-                Register Pharmacy
+              <Button type="submit" className="w-full" disabled={signupLoader}>
+                {signupLoader ? (
+                  <span className="flex items-center justify-center">
+                    <Loader size={20} className="mr-2" />
+                    Registering...
+                  </span>
+                ) : (
+                  "Register Pharmacy"
+                )}
               </Button>
             </form>
 
