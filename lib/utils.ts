@@ -34,4 +34,5 @@ export const API_URLS = {
   GET_RECENT_MEDICINES: "medicines/recent-updates",
   SEARCH_MEDICINES: "medicines/search",
   GET_PHARMACY_DETAILS: "pharmacy/details",
+  UPDATE_PHARMACY_DETAILS: "auth/pharmacy/update",
 };

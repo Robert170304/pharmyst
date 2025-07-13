@@ -21,7 +21,9 @@ export default function PharmacyCard({ searchItem }: PharmacyCardProps) {
             </CardTitle>
             <div className="flex items-center text-sm text-gray-600 mt-1">
               <MapPin className="h-4 w-4 mr-1" />
-              {searchItem.pharmacy.address} • {searchItem.pharmacy.distance}
+              {searchItem.pharmacy.address?.location ||
+                searchItem.pharmacy.address}{" "}
+              • {searchItem.pharmacy.distance}
             </div>
           </div>
           <div className="text-right">

@@ -4,7 +4,15 @@ import type React from "react";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Plus, Package, LogOut, Menu, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Plus,
+  Package,
+  LogOut,
+  Menu,
+  X,
+  Hospital,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -14,6 +22,11 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Add Medicine", href: "/dashboard/add-medicine", icon: Plus },
   { name: "Manage Stock", href: "/dashboard/manage-stock", icon: Package },
+  {
+    name: "Manage Pharmacy",
+    href: "/dashboard/manage-pharmacy",
+    icon: Hospital,
+  },
 ];
 
 export default function DashboardLayout({

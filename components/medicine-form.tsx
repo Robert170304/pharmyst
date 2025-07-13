@@ -92,21 +92,13 @@ export default function MedicineForm({ id }: { id?: string }) {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">
-          {isEdit ? "Edit Medicine" : "Add New Medicine"}
-        </h1>
-        <p className="text-gray-600">
-          {isEdit
-            ? "Edit the medicine details"
-            : "Add a new medicine to your inventory"}
-        </p>
-      </div>
-
-      <Card className="max-w-2xl">
+    <div className="max-w-2xl mx-auto py-8">
+      <Card>
         <CardHeader>
-          <CardTitle>Medicine Information</CardTitle>
+          <CardTitle>
+            {" "}
+            {isEdit ? "Edit Medicine" : "Add New Medicine"}
+          </CardTitle>
           <CardDescription>
             {isEdit
               ? "Edit the details for the medicine"

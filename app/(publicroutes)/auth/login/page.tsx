@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,13 +15,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { loginPharmacy } from "@/lib/api";
 import useAppStore from "@/store/useAppStore";
+import { setAuthCookie } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { setUserData } = useAppStore();
 
@@ -37,11 +39,15 @@ export default function LoginPage() {
       (data) => {
         if (!data?.pharmacy) return;
         setUserData({ ...data.pharmacy, token: data.token });
+        setAuthCookie(data.token, formData.rememberMe);
         toast({
           title: "Login Successful",
           description: "Welcome back to Pharmyst Admin!",
         });
-        router.push("/dashboard");
+
+        // Redirect to intended destination or dashboard
+        const redirectTo = searchParams.get("redirect") || "/dashboard";
+        router.push(redirectTo);
       }
     );
   };

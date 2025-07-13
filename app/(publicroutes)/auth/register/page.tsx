@@ -170,7 +170,10 @@ export default function RegisterPage() {
                   }}
                   placeholder="123 Main Street, City, State, ZIP"
                   onChange={(val) => {
-                    console.log("🚀 ~ RegisterPage ~ val 2:", val);
+                    handleInputChange("address", {
+                      ...formData.address,
+                      location: val,
+                    });
                   }}
                 />
               </div>

@@ -26,7 +26,7 @@ interface SearchPharmacyItemDTO {
   pharmacy: {
     _id: string;
     pharmacyName: string;
-    address: string;
+    address: { location: string; lat: number; lng: number };
     distance: string;
     phone: string;
     rating: number;
@@ -46,7 +46,7 @@ interface SearchPharmacyItemDTO {
 interface PharmacyPublicDTO {
   _id: string;
   pharmacyName: string;
-  address: string;
+  address: { location: string; lat: number; lng: number };
   phone: string;
   rating: number;
   reviews: number;

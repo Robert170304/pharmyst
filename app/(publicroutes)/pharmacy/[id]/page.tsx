@@ -22,7 +22,7 @@ export default function PharmacyDetailPage() {
   const [pharmacy, setPharmacy] = useState<PharmacyPublicDTO>({
     _id: "",
     pharmacyName: "",
-    address: "",
+    address: { location: "", lat: 0, lng: 0 },
     phone: "",
     rating: 0,
     reviews: 0,
@@ -70,7 +70,7 @@ export default function PharmacyDetailPage() {
                     <div className="space-y-2">
                       <div className="flex items-center text-gray-600">
                         <MapPin className="h-4 w-4 mr-2" />
-                        {pharmacy.address}
+                        {pharmacy.address?.location || pharmacy.address}
                       </div>
                       <div className="flex items-center text-gray-600">
                         <Phone className="h-4 w-4 mr-2" />

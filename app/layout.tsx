@@ -7,6 +7,7 @@ import Navbar from "@/components/navbar";
 import "@radix-ui/themes/styles.css";
 import Script from "next/script";
 import RedirectWatcher from "@/components/RedirectWatcher/RedirectWatcher";
+import AuthInitializer from "@/components/auth/AuthInitializer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
+        <AuthInitializer />
         <RedirectWatcher />
         <Navbar />
         {children}

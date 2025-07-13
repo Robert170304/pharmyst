@@ -493,3 +493,46 @@ export const getPharmacyDetails = async (
     });
   }
 };
+
+export const updatePharmacyDetails = async (
+  pharmacyDetails: {
+    pharmacyName: string;
+    ownerName: string;
+    address: { location: string; lat: number; lng: number };
+    phone: string;
+    licenseNumber: string;
+  },
+  config?: AxiosRequestConfig
+) => {
+  try {
+    const API_URL = `${API_URLS.UPDATE_PHARMACY_DETAILS}`;
+    const response = await api.post(API_URL, pharmacyDetails, config);
+    if (response.status !== 200 || response.data.status === false) {
+      toast({
+        description: response.data.message || "update pharmacy details failed",
+      });
+      throw new Error(
+        `API error: ${response.status} - ${
+          response.data?.message || "update pharmacy details failed"
+        }`
+      );
+    }
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      // you can optionally do nothing here
+      return;
+    }
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};

@@ -68,6 +68,7 @@ export default function SearchPage() {
   const [searchResults, setSearchResults] = useState<SearchPharmacyItemDTO[]>(
     []
   );
+  console.log("🚀 ~ SearchPage ~ searchResults:", searchResults);
   const [pagination, setPagination] = useState({
     limit: 10,
     page: 1,

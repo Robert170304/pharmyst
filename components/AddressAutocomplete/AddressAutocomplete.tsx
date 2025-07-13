@@ -41,7 +41,7 @@ export default function AddressAutocomplete({
         inputRef.current = el;
       }}
       id={id}
-      defaultValue={value}
+      value={value}
       placeholder={placeholder || "Enter your address"}
       className="border p-2 rounded w-full"
       style={{ width: "100%", display: "block" }}
