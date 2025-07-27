@@ -21,6 +21,8 @@ interface AppState {
   triggerRedirect: () => void;
   clearRedirect: () => void;
   initializeAuth: () => void;
+  userLocation?: { lat: number; lng: number };
+  setUserLocation: (location: { lat: number; lng: number }) => void;
 }
 
 const initialUserData: UserData = {
@@ -63,12 +65,15 @@ const useAppStore = create(
           set({ shouldRedirect: true });
         }
       },
+      userLocation: undefined,
+      setUserLocation: (location) => set({ userLocation: location }),
     }),
     {
       name: "app-store",
-      partialize: (state) => ({
-        userData: state.userData,
-      }),
+      partialize: (state) =>
+        ({
+          userData: state.userData,
+        } as Partial<AppState>),
     }
   )
 );

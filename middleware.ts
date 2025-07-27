@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
 
   // Get token from cookies
   const token = request.cookies.get("auth-token")?.value;
+  console.log("🚀 ~ middleware ~ token:", token);
 
   // Define protected routes (private routes)
   const protectedRoutes = ["/dashboard"];

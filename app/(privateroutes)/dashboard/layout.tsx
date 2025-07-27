@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { startTransition, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   Hospital,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,9 +36,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { userData, logout } = useAppStore();
+
+  useEffect(() => {
+    router.prefetch("/");
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -76,6 +82,7 @@ export default function DashboardLayout({
               const isActive = pathname === item.href;
               return (
                 <Link
+                  prefetch={true}
                   key={item.name}
                   href={item.href}
                   className={cn(
@@ -97,9 +104,12 @@ export default function DashboardLayout({
             <Button
               variant="ghost"
               className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-              onClick={() => {
-                logout();
-                router.push("/");
+              onClick={async () => {
+                setLoggingOut(true);
+                router.replace("/");
+                setTimeout(() => {
+                  logout(); // Clear state after navigation
+                }, 500); // 500ms delay to allow navigation
               }}
             >
               <LogOut className="mr-3 h-4 w-4" />
@@ -132,6 +142,14 @@ export default function DashboardLayout({
 
         {/* Page content */}
         <main className="p-6">{children}</main>
+        {loggingOut && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-white bg-opacity-80">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-4 text-lg font-medium text-blue-600">
+              Logging out...
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

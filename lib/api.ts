@@ -32,6 +32,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
+    console.log("🚀 ~ response:", response);
     if (
       response?.data?.isUnauthenticated === true ||
       response?.status === 401
@@ -45,6 +46,15 @@ api.interceptors.response.use(
       // REJECT the promise so try/catch goes to catch
       return Promise.reject(
         new axios.Cancel("Session expired, please log in again.")
+      );
+    }
+    if (response?.status === 404) {
+      toast({
+        description: "Something went wrong, please try again!",
+      });
+      // REJECT the promise so try/catch goes to catch
+      return Promise.reject(
+        new axios.Cancel("Something went wrong, please try again!")
       );
     }
     return response;
@@ -428,7 +438,7 @@ export const searchMedicines = async (
 ) => {
   try {
     const response = await api.get(
-      `${API_URLS.SEARCH_MEDICINES}?name=${query.name}&category=${query.category}&availability=${query.availability}&manufacturer=${query.manufacturer}&expiryDate=${query.expiryDate}&pharmacy=${query.pharmacy}&page=${query.page}&limit=${query.limit}`,
+      `${API_URLS.SEARCH_MEDICINES}?name=${query.name}&userLat=${query?.userLat}&userLng=${query?.userLng}&category=${query.category}&availability=${query.availability}&manufacturer=${query.manufacturer}&expiryDate=${query.expiryDate}&pharmacy=${query.pharmacy}&page=${query.page}&limit=${query.limit}&radius=${query.radius}`,
       config
     );
     if (response.status !== 200 || response.data.status === false) {
@@ -533,6 +543,109 @@ export const updatePharmacyDetails = async (
     }
     toast({
       description: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const changePharmacyPassword = async (
+  params: { currentPassword: string; newPassword: string },
+  config?: AxiosRequestConfig
+) => {
+  try {
+    const response = await api.post(API_URLS.CHANGE_PASSWORD, params, config);
+    if (
+      !response.data.status ||
+      (response.status !== 200 && response.status !== 201)
+    ) {
+      toast({
+        description: response.data.message || "Change password failed",
+      });
+      throw new Error(response.data.message || "Change password failed");
+    }
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      return;
+    }
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const updatePharmacyWeeklyHours = async (
+  weeklyHours: any[],
+  config?: AxiosRequestConfig
+) => {
+  try {
+    const response = await api.post(
+      API_URLS.UPDATE_WEEKLY_HOURS,
+      { weeklyHours },
+      config
+    );
+    if (
+      !response.data.status ||
+      (response.status !== 200 && response.status !== 201)
+    ) {
+      toast({
+        description: response.data.message || "Update weekly hours failed",
+      });
+      throw new Error(response.data.message || "Update weekly hours failed");
+    }
+    return response.data;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      return;
+    }
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : String(error),
+    });
+  }
+};
+
+export const getPharmacyWeeklyHours = async (config?: AxiosRequestConfig) => {
+  try {
+    const response = await api.get(API_URLS.GET_WEEKLY_HOURS, config);
+    if (
+      !response.data.status ||
+      (response.status !== 200 && response.status !== 201)
+    ) {
+      toast({
+        description: response.data.message || "Failed to fetch weekly hours",
+      });
+      throw new Error(response.data.message || "Failed to fetch weekly hours");
+    }
+    return response.data.weeklyHours;
+  } catch (error) {
+    if (axios.isCancel(error)) {
+      console.log("Request cancelled by interceptor:", error.message);
+      return;
+    }
+    if (error instanceof AxiosError) {
+      throw new Error(
+        error.response?.data?.message ||
+          error.message ||
+          "An Axios error occurred"
+      );
+    }
+    toast({
+      description: error instanceof Error ? error.message : String(error),
     });
   }
 };

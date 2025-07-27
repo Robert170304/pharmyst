@@ -11,13 +11,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import * as Dialog from "@radix-ui/react-dialog";
 import useAppStore from "@/store/useAppStore";
 import AddressAutocomplete from "@/components/AddressAutocomplete/AddressAutocomplete";
-import { updatePharmacyDetails } from "@/lib/api";
+import { updatePharmacyDetails, changePharmacyPassword } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
-import { Flex } from "@radix-ui/themes";
-import { Clock, MapPin, Phone } from "lucide-react";
+import { Clock, MapPin, Phone, Eye, EyeOff } from "lucide-react";
+import CommonDialog from "@/components/ui/dialog";
+import { validPasswordPattern } from "@/lib/utils";
+import WeeklyHours from "@/components/WeeklyHours/WeeklyHours";
+import Loader from "@/components/ui/loader";
 
 export default function ManagePharmacy() {
   const { userData, setUserData } = useAppStore();
@@ -32,12 +34,17 @@ export default function ManagePharmacy() {
     licenseNumber: "",
   });
   console.log("🚀 ~ ManagePharmacy ~ form:", form);
+  const [submitDetailsLoader, setSubmitDetailsLoader] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     oldPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   useEffect(() => {
     if (!userData.id) return;
@@ -51,23 +58,68 @@ export default function ManagePharmacy() {
   }, [userData]);
 
   // Placeholder submit handlers
-  const handleDetailsSubmit = (e: React.FormEvent) => {
+  const handleDetailsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updatePharmacyDetails(form).then((data) => {
-      if (!data?.pharmacy) return;
-      toast({
-        description: "Pharmacy details successfully updated.",
-      });
+    setSubmitDetailsLoader(true);
+    await updatePharmacyDetails(form)
+      .then((data) => {
+        if (!data?.pharmacy) return;
+        toast({
+          description: "Pharmacy details successfully updated.",
+        });
 
-      setUserData({ ...userData, ...data.pharmacy });
-    });
+        setUserData({ ...userData, ...data.pharmacy });
+      })
+      .catch((err: any) => {
+        toast({
+          title: "Error",
+          description: err.message || "Failed to save changes.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setSubmitDetailsLoader(false);
+      });
   };
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Connect to API
-    alert("Password changed! (UI only)");
-    setPasswordModalOpen(false);
-    setPasswordForm({ oldPassword: "", newPassword: "", confirmPassword: "" });
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New Password and Confirm New Password do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setPasswordLoading(true);
+    await changePharmacyPassword({
+      currentPassword: passwordForm.oldPassword,
+      newPassword: passwordForm.newPassword,
+    })
+      .then((data) => {
+        if (data?.status) {
+          toast({
+            title: "Password Changed",
+            description: "Your password has been updated successfully.",
+          });
+          setPasswordModalOpen(false);
+          setPasswordForm({
+            oldPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+          });
+        }
+      })
+      .catch((err: any) => {
+        toast({
+          title: "Error",
+          description: err.message || "Failed to change password.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setPasswordLoading(false);
+      });
   };
 
   return (
@@ -101,7 +153,7 @@ export default function ManagePharmacy() {
         <CardHeader>
           <CardTitle>Manage Pharmacy Details</CardTitle>
           <CardDescription>
-            Update your pharmacy&apos;s information below.
+            Update your pharmacy's information below.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -134,7 +186,7 @@ export default function ManagePharmacy() {
               <Label htmlFor="address">Address</Label>
               <AddressAutocomplete
                 id="address"
-                value={form.address.location}
+                value={form.address.location || ""}
                 onSelect={(placeObject) => {
                   console.log("🚀 ~ RegisterPage ~ val 1:", placeObject);
                   if (!placeObject.geometry) return;
@@ -183,8 +235,20 @@ export default function ManagePharmacy() {
                 required
               />
             </div>
-            <div className="flex items-center gap-4 pt-2">
-              <Button onClick={handleDetailsSubmit}>Save Changes</Button>
+            <div className="flex justify-end items-center gap-4 pt-2">
+              <Button
+                disabled={submitDetailsLoader}
+                onClick={handleDetailsSubmit}
+              >
+                {submitDetailsLoader ? (
+                  <span className="flex items-center justify-center">
+                    <Loader size={20} className="mr-2" />
+                    Saving...
+                  </span>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -196,75 +260,117 @@ export default function ManagePharmacy() {
           </form>
         </CardContent>
       </Card>
-      {/* Change Password Modal using Radix Dialog */}
-      <Dialog.Root
+      <WeeklyHours />
+      {/* Change Password Modal using CommonDialog */}
+      <CommonDialog
         open={isPasswordModalOpen}
         onOpenChange={setPasswordModalOpen}
+        title="Change Password"
       >
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/40 z-50" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg focus:outline-none">
-            <Dialog.Title className="text-lg font-semibold mb-2">
-              Change Password
-            </Dialog.Title>
-            <form className="space-y-4" onSubmit={handlePasswordSubmit}>
-              <div>
-                <Label htmlFor="oldPassword">Current Password</Label>
-                <Input
-                  id="oldPassword"
-                  type="password"
-                  value={passwordForm.oldPassword}
-                  onChange={(e) =>
-                    setPasswordForm((f) => ({
-                      ...f,
-                      oldPassword: e.target.value,
-                    }))
+        <form className="space-y-4" onSubmit={handlePasswordSubmit}>
+          <div>
+            <Label htmlFor="oldPassword">Current Password</Label>
+            <div className="relative">
+              <Input
+                id="oldPassword"
+                type="password"
+                value={passwordForm.oldPassword}
+                onChange={(e) =>
+                  setPasswordForm((f) => ({
+                    ...f,
+                    oldPassword: e.target.value,
+                  }))
+                }
+                required
+                pattern={validPasswordPattern}
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="newPassword">New Password</Label>
+            <div className="relative">
+              <Input
+                id="newPassword"
+                type={showNewPassword ? "text" : "password"}
+                value={passwordForm.newPassword}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setPasswordForm((f) => ({ ...f, newPassword: value }));
+                  if (!new RegExp(validPasswordPattern).test(value)) {
+                    setNewPasswordError(
+                      "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+                    );
+                  } else {
+                    setNewPasswordError("");
                   }
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={passwordForm.newPassword}
-                  onChange={(e) =>
-                    setPasswordForm((f) => ({
-                      ...f,
-                      newPassword: e.target.value,
-                    }))
+                }}
+                required
+                pattern={validPasswordPattern}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                onClick={() => setShowNewPassword((v) => !v)}
+                tabIndex={-1}
+              >
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+            {newPasswordError && (
+              <p className="text-xs text-red-500 mt-1">{newPasswordError}</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setPasswordForm((f) => ({ ...f, confirmPassword: value }));
+                  if (value !== passwordForm.newPassword) {
+                    setConfirmPasswordError("Passwords do not match.");
+                  } else {
+                    setConfirmPasswordError("");
                   }
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={passwordForm.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordForm((f) => ({
-                      ...f,
-                      confirmPassword: e.target.value,
-                    }))
-                  }
-                  required
-                />
-              </div>
-              <div className="flex gap-2 justify-end mt-4">
-                <Button type="submit">Update Password</Button>
-                <Dialog.Close asChild>
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                </Dialog.Close>
-              </div>
-            </form>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+                }}
+                required
+              />
+            </div>
+            {confirmPasswordError && (
+              <p className="text-xs text-red-500 mt-1">
+                {confirmPasswordError}
+              </p>
+            )}
+          </div>
+          <div className="flex gap-2 justify-end mt-4">
+            <Button
+              type="submit"
+              disabled={
+                passwordLoading || !!newPasswordError || !!confirmPasswordError
+              }
+            >
+              {passwordLoading ? "Updating..." : "Update Password"}
+            </Button>
+            <Button
+              onClick={() => {
+                setPasswordForm({
+                  oldPassword: "",
+                  newPassword: "",
+                  confirmPassword: "",
+                });
+                setPasswordModalOpen(false);
+              }}
+              type="button"
+              variant="outline"
+            >
+              Cancel
+            </Button>
+          </div>
+        </form>
+      </CommonDialog>
     </div>
   );
 }

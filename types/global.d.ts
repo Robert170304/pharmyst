@@ -9,6 +9,7 @@ type Medicine = {
   status: string;
   availability: availabilityStatus;
   available?: boolean;
+  manufacturer?: string;
 };
 
 interface searchParamsDTO {
@@ -20,6 +21,9 @@ interface searchParamsDTO {
   pharmacy: string;
   page: number;
   limit: number;
+  userLat: number | null;
+  userLng: number | null;
+  radius: number;
 }
 
 interface SearchPharmacyItemDTO {

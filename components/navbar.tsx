@@ -18,23 +18,34 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="text-2xl font-bold text-blue-600">
+          <Link
+            prefetch={true}
+            href="/"
+            className="text-2xl font-bold text-blue-600"
+          >
             Pharmyst
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/search" className="text-gray-600 hover:text-gray-900">
+            <Link
+              prefetch={true}
+              href="/search"
+              className="text-gray-600 hover:text-gray-900"
+            >
               Search Medicines
             </Link>
             <Link
+              prefetch={true}
               href="/auth/login"
               className="text-gray-600 hover:text-gray-900"
             >
               Pharmacy Login
             </Link>
             <Button asChild>
-              <Link href="/auth/register">Register Pharmacy</Link>
+              <Link prefetch={true} href="/auth/register">
+                Register Pharmacy
+              </Link>
             </Button>
           </div>
 
@@ -58,6 +69,7 @@ export default function Navbar() {
           <div className="md:hidden py-4 border-t">
             <div className="flex flex-col space-y-4">
               <Link
+                prefetch={true}
                 href="/search"
                 className="text-gray-600 hover:text-gray-900"
                 onClick={() => setIsMenuOpen(false)}
@@ -65,6 +77,7 @@ export default function Navbar() {
                 Search Medicines
               </Link>
               <Link
+                prefetch={true}
                 href="/auth/login"
                 className="text-gray-600 hover:text-gray-900"
                 onClick={() => setIsMenuOpen(false)}
@@ -73,6 +86,7 @@ export default function Navbar() {
               </Link>
               <Button asChild className="w-fit">
                 <Link
+                  prefetch={true}
                   href="/auth/register"
                   onClick={() => setIsMenuOpen(false)}
                 >

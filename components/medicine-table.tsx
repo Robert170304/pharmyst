@@ -21,6 +21,7 @@ export default function MedicineTable({ medicines }: MedicineTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Medicine Name</TableHead>
+            <TableHead>Manufacturer</TableHead>
             <TableHead>Quantity</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Expiry Date</TableHead>
@@ -37,6 +38,9 @@ export default function MedicineTable({ medicines }: MedicineTableProps) {
             return (
               <TableRow key={medicine._id}>
                 <TableCell className="font-medium">{medicine.name}</TableCell>
+                <TableCell className="font-medium">
+                  {medicine.manufacturer}
+                </TableCell>
                 <TableCell>{medicine.quantity}</TableCell>
                 <TableCell>{medicine.price}</TableCell>
                 <TableCell

@@ -24,6 +24,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { addMedicine, getMedicineDetails, updateMedicine } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { medicineTypes } from "@/lib/utils";
 
 export default function MedicineForm({ id }: { id?: string }) {
   const router = useRouter();
@@ -120,7 +121,7 @@ export default function MedicineForm({ id }: { id?: string }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">Medicine Type *</Label>
                 <Select
                   value={formData.category}
                   onValueChange={(value) =>
@@ -131,11 +132,11 @@ export default function MedicineForm({ id }: { id?: string }) {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pain-relief">Pain Relief</SelectItem>
-                    <SelectItem value="antibiotics">Antibiotics</SelectItem>
-                    <SelectItem value="vitamins">Vitamins</SelectItem>
-                    <SelectItem value="cold-flu">Cold & Flu</SelectItem>
-                    <SelectItem value="prescription">Prescription</SelectItem>
+                    {medicineTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

@@ -17,17 +17,21 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">For Users</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <Link href="/search" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/search"
+                  className="hover:text-white"
+                >
                   Search Medicines
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   How it Works
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   FAQ
                 </Link>
               </li>
@@ -38,17 +42,25 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">For Pharmacies</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <Link href="/auth/register" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/auth/register"
+                  className="hover:text-white"
+                >
                   Register Pharmacy
                 </Link>
               </li>
               <li>
-                <Link href="/auth/login" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/auth/login"
+                  className="hover:text-white"
+                >
                   Pharmacy Login
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   Benefits
                 </Link>
               </li>
@@ -59,17 +71,17 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link prefetch={true} href="#" className="hover:text-white">
                   Terms of Service
                 </Link>
               </li>

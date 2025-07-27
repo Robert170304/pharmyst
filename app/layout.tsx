@@ -8,6 +8,8 @@ import "@radix-ui/themes/styles.css";
 import Script from "next/script";
 import RedirectWatcher from "@/components/RedirectWatcher/RedirectWatcher";
 import AuthInitializer from "@/components/auth/AuthInitializer";
+import LocationInitializer from "@/components/RedirectWatcher/LocationInitializer";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,8 +35,10 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthInitializer />
         <RedirectWatcher />
+        <LocationInitializer />
         <Navbar />
         {children}
+        <Footer />
         <Toaster />
       </body>
     </html>

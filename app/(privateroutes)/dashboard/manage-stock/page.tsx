@@ -67,7 +67,7 @@ export default function ManageStockPage() {
           <h1 className="text-3xl font-bold">Manage Stock</h1>
           <p className="text-gray-600">Manage your medicine inventory</p>
         </div>
-        <Link href="/dashboard/add-medicine">
+        <Link prefetch={true} href="/dashboard/add-medicine">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Add Medicine
@@ -98,7 +98,7 @@ export default function ManageStockPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Medicine Name</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead>Medicine Type</TableHead>
                 <TableHead>Quantity</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Expiry Date</TableHead>

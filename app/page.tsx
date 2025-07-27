@@ -26,7 +26,7 @@ export default function LandingPage() {
             availability information. Never run out of essential medications
             again.
           </p>
-          <Link href="/search">
+          <Link prefetch={true} href="/search">
             <Button size="lg" className="text-lg px-8 py-3">
               <Search className="mr-2 h-5 w-5" />
               Search Medicine
@@ -83,8 +83,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

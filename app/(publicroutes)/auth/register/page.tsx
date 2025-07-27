@@ -19,6 +19,8 @@ import { useToast } from "@/hooks/use-toast";
 import { registerPharma } from "@/lib/api";
 import AddressAutocomplete from "@/components/AddressAutocomplete/AddressAutocomplete";
 import Loader from "@/components/ui/loader";
+import { Eye, EyeOff } from "lucide-react";
+import { validPasswordPattern } from "@/lib/utils";
 
 export default function RegisterPage() {
   const initSignupFormObj = {
@@ -35,6 +37,7 @@ export default function RegisterPage() {
   const { toast } = useToast();
   const [formData, setFormData] = useState(initSignupFormObj);
   const [signupLoader, setSignUpLoader] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,16 +211,31 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      handleInputChange("confirmPassword", e.target.value)
-                    }
-                    placeholder="Confirm your password"
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={formData.confirmPassword}
+                      onChange={(e) =>
+                        handleInputChange("confirmPassword", e.target.value)
+                      }
+                      placeholder="Confirm your password"
+                      required
+                      pattern={validPasswordPattern}
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
+                      onClick={() => setShowConfirmPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -257,6 +275,7 @@ export default function RegisterPage() {
               <p className="text-sm text-gray-600">
                 Already have an account?{" "}
                 <Link
+                  prefetch={true}
                   href="/auth/login"
                   className="text-blue-600 hover:underline"
                 >

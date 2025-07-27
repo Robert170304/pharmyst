@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { loginPharmacy } from "@/lib/api";
 import useAppStore from "@/store/useAppStore";
 import { setAuthCookie } from "@/lib/auth";
+import Loader from "@/components/ui/loader";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,10 +34,18 @@ export default function LoginPage() {
     rememberMe: false,
   });
 
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    router.prefetch("/dashboard");
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loginPharmacy({ email: formData.email, password: formData.password }).then(
-      (data) => {
+    setLoading(true);
+    loginPharmacy({ email: formData.email, password: formData.password })
+      .then((data) => {
+        setLoading(false);
         if (!data?.pharmacy) return;
         setUserData({ ...data.pharmacy, token: data.token });
         setAuthCookie(data.token, formData.rememberMe);
@@ -48,8 +57,8 @@ export default function LoginPage() {
         // Redirect to intended destination or dashboard
         const redirectTo = searchParams.get("redirect") || "/dashboard";
         router.push(redirectTo);
-      }
-    );
+      })
+      .catch(() => setLoading(false));
   };
 
   return (
@@ -127,8 +136,8 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full">
-                Sign In
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader size={20} />}Sign In
               </Button>
             </form>
 
@@ -136,6 +145,7 @@ export default function LoginPage() {
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
                 <Link
+                  prefetch={true}
                   href="/auth/register"
                   className="text-blue-600 hover:underline"
                 >

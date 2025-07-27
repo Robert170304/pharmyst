@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { getPharmacyStats, getRecentMedicines } from "@/lib/api";
 import { getStockStatusVariant } from "@/lib/utils";
 import { Box, Flex, Text } from "@radix-ui/themes";
+import { startCase } from "lodash";
 type Stat = {
   title: string;
   value: string;
@@ -142,7 +143,7 @@ export default function DashboardPage() {
                       </Text>
                     </Flex>
                     <Badge variant={stockStatusVariant}>
-                      {medicine.availability}
+                      {startCase(medicine.availability)}
                     </Badge>
                   </Flex>
                 );

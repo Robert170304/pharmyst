@@ -70,7 +70,7 @@ export default function PharmacyDetailPage() {
                     <div className="space-y-2">
                       <div className="flex items-center text-gray-600">
                         <MapPin className="h-4 w-4 mr-2" />
-                        {pharmacy.address?.location || pharmacy.address}
+                        {pharmacy.address?.location}
                       </div>
                       <div className="flex items-center text-gray-600">
                         <Phone className="h-4 w-4 mr-2" />
@@ -113,8 +113,6 @@ export default function PharmacyDetailPage() {
           </Card>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }

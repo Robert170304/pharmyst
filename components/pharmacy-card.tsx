@@ -3,14 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Star } from "lucide-react";
 import Link from "next/link";
+import useAppStore from "@/store/useAppStore";
+import { haversineDistance } from "@/lib/utils";
 
 interface PharmacyCardProps {
   searchItem: SearchPharmacyItemDTO;
 }
 
 export default function PharmacyCard({ searchItem }: PharmacyCardProps) {
-  // const stockStatusVariant = getStockStatusVariant(searchItem.availability);
-
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
@@ -23,7 +23,7 @@ export default function PharmacyCard({ searchItem }: PharmacyCardProps) {
               <MapPin className="h-4 w-4 mr-1" />
               {searchItem.pharmacy.address?.location ||
                 searchItem.pharmacy.address}{" "}
-              • {searchItem.pharmacy.distance}
+              • {searchItem.pharmacy?.distance || "Distance unavailable"}
             </div>
           </div>
           <div className="text-right">
@@ -50,7 +50,7 @@ export default function PharmacyCard({ searchItem }: PharmacyCardProps) {
             </div>
             {/* <Badge variant={stockStatusVariant}>{medicine.availability}</Badge> */}
           </div>
-          <Link href={`/pharmacy/${searchItem.pharmacy._id}`}>
+          <Link prefetch={true} href={`/pharmacy/${searchItem.pharmacy._id}`}>
             <Button>View Details</Button>
           </Link>
         </div>

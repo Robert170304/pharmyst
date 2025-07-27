@@ -17,7 +17,9 @@ export default function NotFound() {
           Let&apos;s get you back to where you belong.
         </p>
         <Button asChild className="mt-4">
-          <Link href="/">Go to Homepage</Link>
+          <Link prefetch={true} href="/">
+            Go to Homepage
+          </Link>
         </Button>
       </div>
     </div>
