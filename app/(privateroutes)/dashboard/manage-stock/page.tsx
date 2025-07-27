@@ -119,7 +119,7 @@ export default function ManageStockPage() {
                     </TableCell>
                     <TableCell>{startCase(medicine.category)}</TableCell>
                     <TableCell>{medicine.quantity}</TableCell>
-                    <TableCell>${medicine.price}</TableCell>
+                    <TableCell>₹{medicine.price}</TableCell>
                     <TableCell>
                       {moment(medicine.expiryDate).format("YYYY-MM-DD")}
                       {expiringSoon && (

@@ -23,7 +23,7 @@ export default function MedicineTable({ medicines }: MedicineTableProps) {
             <TableHead>Medicine Name</TableHead>
             <TableHead>Manufacturer</TableHead>
             <TableHead>Quantity</TableHead>
-            <TableHead>Price</TableHead>
+            <TableHead>Price (₹)</TableHead>
             <TableHead>Expiry Date</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>

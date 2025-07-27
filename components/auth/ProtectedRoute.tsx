@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import useAppStore from "@/store/useAppStore";
 import { Loader2 } from "lucide-react";
 
@@ -12,18 +12,19 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const userData = useAppStore((state) => state.userData);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Check if user is authenticated
     if (!userData.token) {
-      const currentPath = window.location.pathname;
+      const currentPath = pathname;
       console.log("🚀 ~ useEffect ~ currentPath:", currentPath);
       router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
       return;
     }
 
     setIsLoading(false);
-  }, [userData.token, router]);
+  }, [userData.token, router, pathname]);
 
   if (isLoading) {
     return (

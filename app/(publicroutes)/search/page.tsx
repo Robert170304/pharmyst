@@ -3,15 +3,8 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Search, MapPin, List, Map, Filter, X } from "lucide-react";
+import { Search, List, Map, Filter, X } from "lucide-react";
 import PharmacyCard from "@/components/pharmacy-card";
 import { searchMedicines } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
@@ -27,6 +20,20 @@ import useAppStore from "@/store/useAppStore";
 import LocationPermissionPrompt from "@/components/LocationPermissionPrompt";
 import RadiusSelector from "@/components/RadiusSelector";
 import { useMediaSize } from "@/hooks/useMediaSize";
+import dynamic from "next/dynamic";
+
+// Dynamically import MapView with SSR disabled to prevent window undefined errors
+const MapView = dynamic(() => import("@/components/MapView"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+        <p className="text-gray-500">Loading map...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function SearchPage() {
   const { width } = useMediaSize();
@@ -56,58 +63,57 @@ export default function SearchPage() {
   const userLocation = useAppStore((s) => s.userLocation);
   console.log("🚀 ~ SearchPage ~ userLocation:", userLocation);
 
+  const fetchSearchResults = async () => {
+    setSearchLoading(true);
+    try {
+      const apiQueries = {
+        ...searchQueries,
+        userLat: userLocation?.lat || null,
+        userLng: userLocation?.lng || null,
+        category:
+          searchQueries.category === "all" ? "" : searchQueries.category,
+        availability:
+          searchQueries.availability === "all"
+            ? ""
+            : searchQueries.availability,
+      };
+      const results = await searchMedicines(apiQueries);
+      console.log("🚀 ~ fetchSearchResults ~ results:", results);
+      setSearchResults(results.data || []);
+      setPagination(
+        results.pagination || {
+          limit: 10,
+          page: 1,
+          totalPages: 1,
+          totalResults: 0,
+        }
+      );
+    } catch (error) {
+      toast({
+        description:
+          error instanceof Error ? error.message : "An error occurred",
+      });
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Don't fetch if userLocation is not available yet
     if (!userLocation) {
       return;
     }
-
-    const fetchSearchResults = async () => {
-      setSearchLoading(true);
-      try {
-        const apiQueries = {
-          ...searchQueries,
-          userLat: userLocation?.lat || null,
-          userLng: userLocation?.lng || null,
-          category:
-            searchQueries.category === "all" ? "" : searchQueries.category,
-          availability:
-            searchQueries.availability === "all"
-              ? ""
-              : searchQueries.availability,
-        };
-        const results = await searchMedicines(apiQueries);
-        console.log("🚀 ~ fetchSearchResults ~ results:", results);
-        setSearchResults(results.data || []);
-        setPagination(
-          results.pagination || {
-            limit: 10,
-            page: 1,
-            totalPages: 1,
-            totalResults: 0,
-          }
-        );
-      } catch (error) {
-        toast({
-          description:
-            error instanceof Error ? error.message : "An error occurred",
-        });
-      } finally {
-        setSearchLoading(false);
-      }
-    };
-
     fetchSearchResults();
   }, [searchQueries, userLocation]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="mx-auto max-w-6xl px-4 py-8">
           {/* Search Header */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
-              <div className="flex-1 relative">
+              <div className="flex-1 relative w-full">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search for medicines..."
@@ -307,27 +313,33 @@ export default function SearchPage() {
                     ))}
                   </div>
                 ) : (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Map View</CardTitle>
-                      <CardDescription>
-                        Interactive map showing nearby pharmacies
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <div className="text-center">
-                          <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                          <p className="text-gray-500">
-                            Map integration placeholder
-                          </p>
-                          <p className="text-sm text-gray-400">
-                            Leaflet.js map would be integrated here
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  //     <Card>
+                  //   <CardHeader>
+                  //     <CardTitle>Map View</CardTitle>
+                  //     <CardDescription>
+                  //       Interactive map showing nearby pharmacies
+                  //     </CardDescription>
+                  //   </CardHeader>
+                  //   <CardContent>
+                  //     <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
+                  //       <div className="text-center">
+                  //         <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  //         <p className="text-gray-500">
+                  //           Map integration placeholder
+                  //         </p>
+                  //         <p className="text-sm text-gray-400">
+                  //           Leaflet.js map would be integrated here
+                  //         </p>
+                  //       </div>
+                  //     </div>
+                  //   </CardContent>
+                  // </Card>
+                  <MapView
+                    pharmacies={searchResults}
+                    userLocation={userLocation}
+                    radius={searchQueries.radius * 1000} // Convert km to meters
+                    updateSearchResults={fetchSearchResults}
+                  />
                 )}
               </div>
             )}

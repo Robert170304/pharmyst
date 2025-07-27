@@ -149,22 +149,29 @@ export default function MedicineForm({ id }: { id?: string }) {
                   id="quantity"
                   type="number"
                   value={formData.quantity}
-                  onChange={(e) =>
-                    handleInputChange("quantity", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) {
+                      handleInputChange("quantity", value.toString());
+                    }
+                  }}
                   placeholder="e.g., 100"
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price">Price ($) *</Label>
+                <Label htmlFor="price">Price (₹) *</Label>
                 <Input
                   id="price"
                   type="number"
-                  step="0.01"
                   value={formData.price}
-                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (value >= 0) {
+                      handleInputChange("price", value.toString());
+                    }
+                  }}
                   placeholder="e.g., 9.99"
                   required
                 />
