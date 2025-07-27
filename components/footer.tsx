@@ -4,7 +4,11 @@ import { usePathname } from "next/navigation";
 
 export default function Footer() {
   const pathName = usePathname();
-  if (pathName.includes("dashboard") || pathName.includes("verify")) {
+  if (
+    pathName.includes("dashboard") ||
+    pathName.includes("verify") ||
+    pathName.includes("search")
+  ) {
     return null;
   }
   return (

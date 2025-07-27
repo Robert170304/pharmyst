@@ -109,9 +109,9 @@ export default function SearchPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 bg-gray-50">
-        <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="mx-auto max-w-6xl px-4 py-6 md:py-8">
           {/* Search Header */}
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-6">
             <div className="flex flex-col md:flex-row gap-4 items-center">
               <div className="flex-1 relative w-full">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />

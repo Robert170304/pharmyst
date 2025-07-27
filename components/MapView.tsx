@@ -29,6 +29,8 @@ import {
   ZoomIn,
   ZoomOut,
   RefreshCcw,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import Link from "next/link";
 import useAppStore from "@/store/useAppStore";
@@ -182,6 +184,31 @@ function MapControls() {
   );
 }
 
+// Fullscreen toggle component
+function FullscreenToggle({
+  isFullscreen,
+  onToggle,
+}: {
+  isFullscreen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="absolute bottom-4 right-4 z-[1000]">
+      <Button
+        onClick={onToggle}
+        size="sm"
+        className="bg-white hover:bg-gray-100 text-gray-700 shadow-lg border"
+      >
+        {isFullscreen ? (
+          <Minimize2 className="h-4 w-4" />
+        ) : (
+          <Maximize2 className="h-4 w-4" />
+        )}
+      </Button>
+    </div>
+  );
+}
+
 // Re-search area component
 function ReSearchArea({
   updateSearchResults,
@@ -241,10 +268,38 @@ export default function MapView({
 }: MapViewProps) {
   const { width } = useMediaSize();
   const [isClient, setIsClient] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const isMobile = width <= 768;
 
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  useEffect(() => {
+    // Handle escape key to exit fullscreen
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isFullscreen) {
+        setIsFullscreen(false);
+      }
+    };
+
+    if (isFullscreen) {
+      document.addEventListener("keydown", handleEscape);
+      // Prevent body scroll when in fullscreen
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [isFullscreen]);
 
   if (!isClient) {
     return (
@@ -255,7 +310,7 @@ export default function MapView({
             Interactive map showing nearby pharmacies
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 p-4">
           <div className="h-96 bg-gray-100 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
@@ -268,17 +323,170 @@ export default function MapView({
   }
 
   const mapHeight = width <= 768 ? "h-[70vh]" : "h-96";
+  const fullscreenMapHeight = "h-screen";
+
+  // Fullscreen overlay component
+  if (isFullscreen) {
+    return (
+      <div className="fixed inset-0 z-50 bg-white">
+        <div className="h-full w-full relative">
+          <MapContainer
+            center={[userLocation.lat, userLocation.lng]}
+            zoom={13}
+            style={{ height: "100%", width: "100%" }}
+            className=""
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {/* User location marker */}
+            <Marker
+              position={[userLocation.lat, userLocation.lng]}
+              icon={userLocationIcon}
+            >
+              <Popup>
+                <div className="text-center">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span className="font-medium">You are here</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Your current location</p>
+                </div>
+              </Popup>
+            </Marker>
+
+            {/* Radius circle */}
+            <Circle
+              center={[userLocation.lat, userLocation.lng]}
+              radius={radius}
+              pathOptions={{
+                color: "#3b82f6",
+                fillColor: "#3b82f6",
+                fillOpacity: 0.1,
+                weight: 2,
+              }}
+            />
+
+            {/* Pharmacy markers */}
+            <MarkerClusterGroup>
+              {pharmacies.map((item) => (
+                <Marker
+                  key={item.pharmacy._id}
+                  position={[
+                    item.pharmacy.address.lat,
+                    item.pharmacy.address.lng,
+                  ]}
+                  icon={pharmacyIcon}
+                >
+                  <Popup maxWidth={300}>
+                    <div className="p-2">
+                      <h3 className="font-semibold text-lg mb-2">
+                        {item.pharmacy.pharmacyName}
+                      </h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-start gap-2">
+                          <MapPin className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-600">
+                            {item.pharmacy.address.location}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 text-yellow-500" />
+                            <span className="font-medium">
+                              {item.pharmacy.rating}
+                            </span>
+                          </div>
+                          <Badge
+                            variant={
+                              item.pharmacy.isOpen ? "default" : "secondary"
+                            }
+                            className={`text-xs ${
+                              item.pharmacy.isOpen
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {item.pharmacy.isOpen ? "Open" : "Closed"}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4 text-gray-500" />
+                          <span className="text-gray-600">
+                            {item.pharmacy.phone}
+                          </span>
+                        </div>
+                        <div className="text-gray-600">
+                          <span className="font-medium">
+                            {item.pharmacy.distance} km away
+                          </span>
+                        </div>
+                        {item.medicines && item.medicines.length > 0 && (
+                          <div>
+                            <p className="font-medium text-gray-700 mb-1">
+                              Available medicines:
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {item.medicines
+                                .slice(0, 3)
+                                .map((medicine: any, index: number) => (
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs"
+                                  >
+                                    {medicine.name}
+                                  </Badge>
+                                ))}
+                              {item.medicines.length > 3 && (
+                                <Badge variant="outline" className="text-xs">
+                                  +{item.medicines.length - 3} more
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        <Link href={`/pharmacy/${item.pharmacy._id}`}>
+                          <Button size="sm" className="w-full mt-2">
+                            View Details
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MarkerClusterGroup>
+
+            {/* Map controls */}
+            <MapControls />
+
+            {/* Re-search area button */}
+            <ReSearchArea updateSearchResults={updateSearchResults} />
+
+            {/* Fullscreen toggle */}
+            <FullscreenToggle
+              isFullscreen={isFullscreen}
+              onToggle={toggleFullscreen}
+            />
+          </MapContainer>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="md:p-6 p-4">
         <CardTitle>Map View</CardTitle>
         <CardDescription>
           Interactive map showing nearby pharmacies
           {pharmacies.length > 0 && ` (${pharmacies.length} found)`}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-0 p-4">
         <div className={`${mapHeight} rounded-lg overflow-hidden relative`}>
           {pharmacies.length === 0 ? (
             <div className="h-full bg-gray-100 flex items-center justify-center">
@@ -448,6 +656,12 @@ export default function MapView({
 
               {/* Re-search area button */}
               <ReSearchArea updateSearchResults={updateSearchResults} />
+
+              {/* Fullscreen toggle */}
+              <FullscreenToggle
+                isFullscreen={isFullscreen}
+                onToggle={toggleFullscreen}
+              />
             </MapContainer>
           )}
         </div>
