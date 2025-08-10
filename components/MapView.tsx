@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
   Circle,
+  Polyline,
   useMap,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
@@ -115,6 +116,7 @@ interface MapViewProps {
   userLocation: { lat: number; lng: number };
   radius?: number;
   updateSearchResults?: () => void;
+  focusPharmacyId?: string;
 }
 
 // Map controls component
@@ -265,10 +267,17 @@ export default function MapView({
   userLocation,
   radius = 5000,
   updateSearchResults,
+  focusPharmacyId,
 }: MapViewProps) {
   const { width } = useMediaSize();
   const [isClient, setIsClient] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [routeCoords, setRouteCoords] = useState<[number, number][] | null>(
+    null
+  );
+  const [isRouting, setIsRouting] = useState<boolean>(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
+  const markerRefs = useRef<Record<string, L.Marker | null>>({});
   const isMobile = width <= 768;
 
   useEffect(() => {
@@ -278,6 +287,71 @@ export default function MapView({
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
   };
+
+  // Fetch driving directions between user's location and a pharmacy using OSRM
+  const handleDirections = async (toLat: number, toLng: number) => {
+    try {
+      setIsRouting(true);
+      setRouteError(null);
+      // OSRM expects lng,lat order
+      const url = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${toLng},${toLat}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok || !data?.routes?.length) {
+        throw new Error("No route found");
+      }
+      const coordinates: [number, number][] =
+        data.routes[0].geometry.coordinates.map((c: [number, number]) => [
+          c[1],
+          c[0],
+        ]);
+      setRouteCoords(coordinates);
+    } catch (err: any) {
+      setRouteError(err?.message || "Failed to fetch directions");
+    } finally {
+      setIsRouting(false);
+    }
+  };
+
+  // Renders and fits the map to the current route polyline
+  function RouteLayer({ coords }: { coords: [number, number][] | null }) {
+    const map = useMap();
+    if (coords && coords.length > 0) {
+      const bounds = L.latLngBounds(coords.map((c) => L.latLng(c[0], c[1])));
+      // Fit bounds with gentle padding
+      map.fitBounds(bounds, { padding: [24, 24] });
+    }
+    return coords ? (
+      <Polyline
+        positions={coords}
+        pathOptions={{ color: "#2563eb", weight: 5 }}
+      />
+    ) : null;
+  }
+
+  // Focus a pharmacy marker and open its popup when focusPharmacyId changes
+  function FocusController({ id }: { id?: string }) {
+    const map = useMap();
+    useEffect(() => {
+      if (!id) return;
+      const mk = markerRefs.current?.[id];
+      if (mk) {
+        const latlng = mk.getLatLng();
+        map.flyTo(latlng, 16, { duration: 0.75 });
+        setTimeout(() => mk.openPopup(), 300);
+      } else {
+        const ph = pharmacies.find((p) => p.pharmacy._id === id);
+        if (ph) {
+          const latlng: [number, number] = [
+            ph.pharmacy.address.lat,
+            ph.pharmacy.address.lng,
+          ];
+          map.flyTo(latlng, 16, { duration: 0.75 });
+        }
+      }
+    }, [id, map]);
+    return null;
+  }
 
   useEffect(() => {
     // Handle escape key to exit fullscreen
@@ -379,6 +453,11 @@ export default function MapView({
                     item.pharmacy.address.lng,
                   ]}
                   icon={pharmacyIcon}
+                  ref={(ref) => {
+                    if (!markerRefs.current) markerRefs.current = {} as any;
+                    // @ts-ignore - react-leaflet marker type
+                    markerRefs.current[item.pharmacy._id] = ref as any;
+                  }}
                 >
                   <Popup maxWidth={300}>
                     <div className="p-2">
@@ -448,17 +527,47 @@ export default function MapView({
                             </div>
                           </div>
                         )}
-                        <Link href={`/pharmacy/${item.pharmacy._id}`}>
-                          <Button size="sm" className="w-full mt-2">
-                            View Details
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() =>
+                              handleDirections(
+                                item.pharmacy.address.lat,
+                                item.pharmacy.address.lng
+                              )
+                            }
+                            disabled={isRouting}
+                          >
+                            <Navigation className="h-4 w-4" />
+                            {isRouting ? "Routing..." : "Directions"}
                           </Button>
-                        </Link>
+                          <Link
+                            href={`/pharmacy/${item.pharmacy._id}`}
+                            className="flex-1"
+                          >
+                            <Button size="sm" className="w-full">
+                              View Details
+                            </Button>
+                          </Link>
+                        </div>
+                        {routeError && (
+                          <div className="text-xs text-red-600 mt-1">
+                            {routeError}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </Popup>
                 </Marker>
               ))}
             </MarkerClusterGroup>
+
+            {/* Route polyline layer */}
+            <RouteLayer coords={routeCoords} />
+            {/* Focus selected pharmacy */}
+            <FocusController id={focusPharmacyId} />
 
             {/* Map controls */}
             <MapControls />
@@ -582,6 +691,11 @@ export default function MapView({
                       item.pharmacy.address.lng,
                     ]}
                     icon={pharmacyIcon}
+                    ref={(ref) => {
+                      if (!markerRefs.current) markerRefs.current = {} as any;
+                      // @ts-ignore - react-leaflet marker type
+                      markerRefs.current[item.pharmacy._id] = ref as any;
+                    }}
                   >
                     <Popup maxWidth={300} className="pharmacy-popup">
                       <div className="p-2">
@@ -640,16 +754,46 @@ export default function MapView({
                             </div>
                           )}
                         </div>
-                        <Link href={`/pharmacy/${item.pharmacy._id}`}>
-                          <Button size="sm" className="w-full">
-                            View Details
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1"
+                            onClick={() =>
+                              handleDirections(
+                                item.pharmacy.address.lat,
+                                item.pharmacy.address.lng
+                              )
+                            }
+                            disabled={isRouting}
+                          >
+                            <Navigation className="h-4 w-4 mr-2" />
+                            {isRouting ? "Routing..." : "Directions"}
                           </Button>
-                        </Link>
+                          <Link
+                            href={`/pharmacy/${item.pharmacy._id}`}
+                            className="flex-1"
+                          >
+                            <Button size="sm" className="w-full">
+                              View Details
+                            </Button>
+                          </Link>
+                        </div>
+                        {routeError && (
+                          <div className="text-xs text-red-600 mt-1">
+                            {routeError}
+                          </div>
+                        )}
                       </div>
                     </Popup>
                   </Marker>
                 ))}
               </MarkerClusterGroup>
+
+              {/* Route polyline layer */}
+              <RouteLayer coords={routeCoords} />
+              {/* Focus selected pharmacy */}
+              <FocusController id={focusPharmacyId} />
 
               {/* Map controls */}
               <MapControls />

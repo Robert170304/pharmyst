@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Search, List, Map, Filter, X } from "lucide-react";
+import { Search, List, Map, Filter, X, ChevronUp, Loader2 } from "lucide-react";
 import PharmacyCard from "@/components/pharmacy-card";
 import { searchMedicines } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
@@ -44,13 +44,14 @@ export default function SearchPage() {
     manufacturer: "",
     expiryDate: "",
     pharmacy: "",
-    page: 1,
-    limit: 10,
     radius: 30,
   });
   const [searchResults, setSearchResults] = useState<SearchPharmacyItemDTO[]>(
     []
   );
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const resultsRef = useRef<HTMLDivElement>(null);
   const [pagination, setPagination] = useState({
     limit: 10,
     page: 1,
@@ -60,11 +61,19 @@ export default function SearchPage() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "map" | "">("list");
   const [showFilters, setShowFilters] = useState(false);
+  const [focusedPharmacyId, setFocusedPharmacyId] = useState<
+    string | undefined
+  >(undefined);
   const userLocation = useAppStore((s) => s.userLocation);
   console.log("🚀 ~ SearchPage ~ userLocation:", userLocation);
 
-  const fetchSearchResults = async () => {
-    setSearchLoading(true);
+  const fetchSearchResults = async (isLoadMore = false) => {
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setSearchLoading(true);
+      setSearchResults([]); // Clear results for new search
+    }
     try {
       const apiQueries = {
         ...searchQueries,
@@ -76,10 +85,21 @@ export default function SearchPage() {
           searchQueries.availability === "all"
             ? ""
             : searchQueries.availability,
+        page: isLoadMore ? pagination.page + 1 : 1,
+        limit: pagination.limit,
       };
+
       const results = await searchMedicines(apiQueries);
       console.log("🚀 ~ fetchSearchResults ~ results:", results);
-      setSearchResults(results.data || []);
+
+      if (isLoadMore) {
+        // Append new results to existing ones
+        setSearchResults((prev) => [...prev, ...(results.data || [])]);
+      } else {
+        // Replace results for new search
+        setSearchResults(results.data || []);
+      }
+
       setPagination(
         results.pagination || {
           limit: 10,
@@ -95,6 +115,7 @@ export default function SearchPage() {
       });
     } finally {
       setSearchLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -105,6 +126,37 @@ export default function SearchPage() {
     }
     fetchSearchResults();
   }, [searchQueries, userLocation]);
+
+  // Handle scroll for back to top button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (resultsRef.current) {
+        const scrollTop =
+          window.pageYOffset || document.documentElement.scrollTop;
+        setShowBackToTop(scrollTop > 500);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleLoadMore = () => {
+    fetchSearchResults(true);
+  };
+
+  const scrollToTop = () => {
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const canLoadMore = pagination.page < pagination.totalPages;
+  const showingCount = searchResults.length;
+  const totalCount = pagination.totalResults;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -296,21 +348,82 @@ export default function SearchPage() {
                 {!userLocation ? (
                   <LocationPermissionPrompt />
                 ) : viewMode === "list" ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4" ref={resultsRef}>
                     <div className="flex justify-between items-center">
                       <h2 className="text-xl font-semibold">
-                        {searchResults.length}{" "}
-                        {searchResults.length === 1 ? "pharmacy" : "pharmacies"}{" "}
-                        found
+                        {totalCount > 0 ? (
+                          <>
+                            Showing {showingCount} of {totalCount} pharmacies
+                          </>
+                        ) : (
+                          "0 pharmacies found"
+                        )}
                       </h2>
                     </div>
 
-                    {searchResults.map((result: SearchPharmacyItemDTO) => (
-                      <PharmacyCard
-                        key={result.pharmacy._id}
-                        searchItem={result}
-                      />
-                    ))}
+                    {searchLoading && searchResults.length === 0 ? (
+                      <div className="flex items-center justify-center py-8">
+                        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                        <span>Searching pharmacies...</span>
+                      </div>
+                    ) : searchResults.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No pharmacies found matching your criteria.</p>
+                        <p className="text-sm mt-2">
+                          Try adjusting your search filters or location.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-4">
+                          {searchResults.map(
+                            (result: SearchPharmacyItemDTO) => (
+                              <PharmacyCard
+                                key={result.pharmacy._id}
+                                searchItem={result}
+                                onViewOnMap={(id) => {
+                                  setFocusedPharmacyId(id);
+                                  setViewMode("map");
+                                  // Scroll to map section smoothly
+                                  setTimeout(() => {
+                                    document
+                                      .querySelector(".pharmacy-map-anchor")
+                                      ?.scrollIntoView({ behavior: "smooth" });
+                                  }, 0);
+                                }}
+                              />
+                            )
+                          )}
+                        </div>
+
+                        {/* Load More Button */}
+                        {canLoadMore && (
+                          <div className="flex justify-center pt-6">
+                            <Button
+                              onClick={handleLoadMore}
+                              disabled={loadingMore}
+                              variant="outline"
+                              className="min-w-[120px]"
+                            >
+                              {loadingMore ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                  Loading...
+                                </>
+                              ) : (
+                                "Load More"
+                              )}
+                            </Button>
+                          </div>
+                        )}
+
+                        {!canLoadMore && totalCount > 10 && (
+                          <div className="text-center pt-6 text-gray-500 text-sm">
+                            You've reached the end of the results
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
                 ) : (
                   //     <Card>
@@ -334,18 +447,34 @@ export default function SearchPage() {
                   //     </div>
                   //   </CardContent>
                   // </Card>
-                  <MapView
-                    pharmacies={searchResults}
-                    userLocation={userLocation}
-                    radius={searchQueries.radius * 1000} // Convert km to meters
-                    updateSearchResults={fetchSearchResults}
-                  />
+                  <>
+                    <div className="pharmacy-map-anchor" />
+                    <MapView
+                      pharmacies={searchResults}
+                      userLocation={userLocation}
+                      radius={searchQueries.radius * 1000} // Convert km to meters
+                      updateSearchResults={fetchSearchResults}
+                      focusPharmacyId={focusedPharmacyId}
+                    />
+                  </>
                 )}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Back to Top FAB */}
+      {showBackToTop && (
+        <Button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 rounded-full w-12 h-12 p-0 shadow-lg hover:shadow-xl transition-all duration-200"
+          size="sm"
+        >
+          <ChevronUp className="h-12 w-12" />
+          <span className="sr-only">Back to top</span>
+        </Button>
+      )}
     </div>
   );
 }

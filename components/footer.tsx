@@ -36,15 +36,19 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link prefetch={true} href="#" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/benefits"
+                  className="hover:text-white"
+                >
                   How it Works
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link prefetch={true} href="#" className="hover:text-white">
                   FAQ
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -70,7 +74,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link prefetch={true} href="#" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/benefits"
+                  className="hover:text-white"
+                >
                   Benefits
                 </Link>
               </li>
@@ -81,17 +89,29 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <Link prefetch={true} href="#" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/contact"
+                  className="hover:text-white"
+                >
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link prefetch={true} href="#" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/privacy"
+                  className="hover:text-white"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link prefetch={true} href="#" className="hover:text-white">
+                <Link
+                  prefetch={true}
+                  href="/terms"
+                  className="hover:text-white"
+                >
                   Terms of Service
                 </Link>
               </li>
