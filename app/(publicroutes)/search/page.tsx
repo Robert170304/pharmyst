@@ -181,6 +181,7 @@ export default function SearchPage() {
                   variant={viewMode === "list" ? "default" : "outline"}
                   onClick={() => {
                     setViewMode("list");
+                    setFocusedPharmacyId(undefined);
                     if (width <= 768) {
                       setShowFilters(false);
                     }
@@ -194,6 +195,7 @@ export default function SearchPage() {
                   variant={viewMode === "map" ? "default" : "outline"}
                   onClick={() => {
                     setViewMode("map");
+                    setFocusedPharmacyId(undefined);
                     if (width <= 768) {
                       setShowFilters(false);
                     }
@@ -207,6 +209,7 @@ export default function SearchPage() {
                   variant={showFilters ? "default" : "outline"}
                   onClick={() => {
                     setShowFilters(!showFilters);
+                    setFocusedPharmacyId(undefined);
                     if (width <= 768) {
                       setViewMode("");
                     }
@@ -455,6 +458,7 @@ export default function SearchPage() {
                       radius={searchQueries.radius * 1000} // Convert km to meters
                       updateSearchResults={fetchSearchResults}
                       focusPharmacyId={focusedPharmacyId}
+                      onFocusHandled={() => setFocusedPharmacyId(undefined)}
                     />
                   </>
                 )}

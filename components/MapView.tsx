@@ -117,6 +117,7 @@ interface MapViewProps {
   radius?: number;
   updateSearchResults?: () => void;
   focusPharmacyId?: string;
+  onFocusHandled?: () => void;
 }
 
 // Map controls component
@@ -268,6 +269,7 @@ export default function MapView({
   radius = 5000,
   updateSearchResults,
   focusPharmacyId,
+  onFocusHandled,
 }: MapViewProps) {
   const { width } = useMediaSize();
   const [isClient, setIsClient] = useState(false);
@@ -330,7 +332,13 @@ export default function MapView({
   }
 
   // Focus a pharmacy marker and open its popup when focusPharmacyId changes
-  function FocusController({ id }: { id?: string }) {
+  function FocusController({
+    id,
+    onDone,
+  }: {
+    id?: string;
+    onDone?: () => void;
+  }) {
     const map = useMap();
     useEffect(() => {
       if (!id) return;
@@ -338,7 +346,10 @@ export default function MapView({
       if (mk) {
         const latlng = mk.getLatLng();
         map.flyTo(latlng, 16, { duration: 0.75 });
-        setTimeout(() => mk.openPopup(), 300);
+        setTimeout(() => {
+          mk.openPopup();
+          onDone?.();
+        }, 300);
       } else {
         const ph = pharmacies.find((p) => p.pharmacy._id === id);
         if (ph) {
@@ -567,7 +578,7 @@ export default function MapView({
             {/* Route polyline layer */}
             <RouteLayer coords={routeCoords} />
             {/* Focus selected pharmacy */}
-            <FocusController id={focusPharmacyId} />
+            <FocusController id={focusPharmacyId} onDone={onFocusHandled} />
 
             {/* Map controls */}
             <MapControls />
@@ -793,7 +804,7 @@ export default function MapView({
               {/* Route polyline layer */}
               <RouteLayer coords={routeCoords} />
               {/* Focus selected pharmacy */}
-              <FocusController id={focusPharmacyId} />
+              <FocusController id={focusPharmacyId} onDone={onFocusHandled} />
 
               {/* Map controls */}
               <MapControls />
