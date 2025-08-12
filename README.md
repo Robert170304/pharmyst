@@ -9,11 +9,14 @@
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 A modern web app to help users quickly locate pharmacies that stock specific medicines with near real-time availability. Pharmacies can register, verify, and manage their inventory via a simple dashboard, while users can search, filter, and find nearby options with location-aware results.
 
-Built with a performant stack (Next.js, React, Tailwind CSS) and integrated with Google Places for precise location features.
+Built with a performant MERN stack (MongoDB, Express.js, React/Next.js, Node.js) and integrated with Google Places for precise location features. Note: this repository contains the frontend; the backend (Node.js/Express + MongoDB) lives in a separate service that the app consumes via `NEXT_PUBLIC_API_BASE_URL`.
 
 ---
 
@@ -39,12 +42,14 @@ Built with a performant stack (Next.js, React, Tailwind CSS) and integrated with
 
 ## Tech Stack
 
-- **Framework**: Next.js 15, React 19, TypeScript
+- **Frontend Framework**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS, Radix UI/Primitives, shadcn/ui components
 - **State**: Zustand
 - **Forms & Validation**: React Hook Form, Zod
 - **Data & API**: Axios, REST APIs (`NEXT_PUBLIC_API_BASE_URL`)
 - **Maps & Location**: Google Places API (via `@react-google-maps/api`), Places Autocomplete
+- **Backend**: Node.js, Express.js (separate service)
+- **Database**: MongoDB (Atlas)
 - **Charts & Extras**: Recharts, date-fns, lucide-react icons
 
 ## Installation & Setup
@@ -138,7 +143,7 @@ async function fetchResults() {
 - Preview:
 
 <p align="center">
-  <img src="./public/image.png" alt="Pharmyst Preview" width="800" />
+  <img src="./public/site-homepage.png" alt="Pharmyst Preview" width="800" />
 </p>
 
 ## Contributing
@@ -163,8 +168,6 @@ This project is licensed under the **MIT License**.
 
 ## Contact
 
-- Maintainer: Your Name
-- Email: your.email@example.com
-- Portfolio: https://your-portfolio.example.com
-
-Replace the placeholders above with your actual contact and live demo links.
+- Maintainer: Robert Macwan
+- Email: macwanrobert04@gmail.com
+- Portfolio: https://robert-macwan.vercel.app/
