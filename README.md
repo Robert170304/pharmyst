@@ -57,7 +57,7 @@ Built with a performant stack (Next.js, React, Tailwind CSS) and integrated with
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/your-org/pharmyst.git
+git clone https://github.com/Robert170304/pharmyst.git
 cd pharmyst
 ```
 
