@@ -17,8 +17,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   useEffect(() => {
     // Check if user is authenticated
     if (!userData.token) {
-      const currentPath = pathname;
-      router.push(`/auth/login?redirect=${encodeURIComponent(currentPath)}`);
+      router.push(`/auth/login`);
       return;
     }
 

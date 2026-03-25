@@ -53,10 +53,8 @@ export default function LoginPage() {
           description: "Welcome back to Pharmyst Admin!",
         });
 
-        // Redirect to intended destination or dashboard
-        const params = new URLSearchParams(window.location.search);
-        const redirectTo = params.get("redirect") || "/dashboard";
-        router.push(redirectTo);
+        // Redirect to dashboard
+        router.push("/dashboard");
       })
       .catch(() => setLoading(false));
   };
