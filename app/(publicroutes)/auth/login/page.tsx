@@ -54,7 +54,9 @@ export default function LoginPage() {
         });
 
         // Redirect to intended destination or dashboard
-        router.push("/dashboard");
+        const params = new URLSearchParams(window.location.search);
+        const redirectTo = params.get("redirect") || "/dashboard";
+        window.location.href = redirectTo;
       })
       .catch(() => setLoading(false));
   };

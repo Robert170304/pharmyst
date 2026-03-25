@@ -17,7 +17,7 @@ export default function PublicRoute({ children }: PublicRouteProps) {
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard
     if (userData.token) {
-      router.push("/dashboard");
+      window.location.href = "/dashboard";
       return;
     }
 
