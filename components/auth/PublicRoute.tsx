@@ -12,11 +12,12 @@ export default function PublicRoute({ children }: PublicRouteProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const userData = useAppStore((state) => state.userData);
-  console.log("🚀 ~ PublicRoute ~ userData:", userData);
 
   useEffect(() => {
     // If user is already authenticated, redirect to dashboard
-    if (userData.token) {
+    console.log("🚀 ~ PublicRoute ~ userData:", userData);
+    if (userData?.token) {
+      console.log("🚀 ~ PublicRoute ~ userData.token:", userData.token);
       router.push("/dashboard");
       return;
     }
