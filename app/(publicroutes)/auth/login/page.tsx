@@ -56,7 +56,7 @@ export default function LoginPage() {
         // Redirect to intended destination or dashboard
         const params = new URLSearchParams(window.location.search);
         const redirectTo = params.get("redirect") || "/dashboard";
-        window.location.href = redirectTo;
+        router.push(redirectTo);
       })
       .catch(() => setLoading(false));
   };
