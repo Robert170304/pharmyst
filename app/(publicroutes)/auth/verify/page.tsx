@@ -35,7 +35,6 @@ export default function VerificationPage() {
         title: "Verification Successful",
         description: "Your pharmacy account has been successfully verified!",
       });
-      router.push("/dashboard");
     });
   }, [token]);
 

@@ -18,6 +18,7 @@ export default function PublicRoute({ children }: PublicRouteProps) {
     console.log("🚀 ~ PublicRoute ~ userData:", userData);
     if (userData?.token) {
       console.log("🚀 ~ PublicRoute ~ userData.token:", userData.token);
+      router.refresh(); // invalidate Next.js client router cache with new cookies
       router.push("/dashboard");
       return;
     }

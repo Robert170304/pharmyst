@@ -35,9 +35,7 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    router.prefetch("/dashboard");
-  }, []);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,8 +51,7 @@ export default function LoginPage() {
           description: "Welcome back to Pharmyst Admin!",
         });
 
-        // Redirect to dashboard
-        router.push("/dashboard");
+
       })
       .catch(() => setLoading(false));
   };
