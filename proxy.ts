@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Get token from cookies
   const token = request.cookies.get("auth-token")?.value;
-  console.log("🚀 ~ middleware ~ token:", token);
 
   // Define protected routes (private routes)
   const protectedRoutes = ["/dashboard"];
@@ -26,11 +25,9 @@ export function middleware(request: NextRequest) {
 
   // Check if current path is an public route
   const isAuthRoute = publicRoutes.some((route) => pathname.startsWith(route));
-
   // If accessing protected route without token, redirect to login
   if (isProtectedRoute && !token) {
     const loginUrl = new URL("/auth/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 

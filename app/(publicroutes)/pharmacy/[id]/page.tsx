@@ -15,9 +15,17 @@ import { getPharmacyDetails, getPharmacyMedicines } from "@/lib/api";
 import PharmacyDetailSkeleton from "./details-skeleton";
 import { useParams } from "next/navigation";
 
+import { ChevronLeft, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+
 export default function PharmacyDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const [medicines, setMedicines] = useState([]);
+  const [filteredMedicines, setFilteredMedicines] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [pharmacy, setPharmacy] = useState<PharmacyPublicDTO>({
     _id: "",
@@ -41,6 +49,10 @@ export default function PharmacyDetailPage() {
       try {
         const pharmacyData = await getPharmacyDetails(params.id as string);
         setPharmacy(pharmacyData);
+      
+        const meds = await getPharmacyMedicines({ pharmacyId: params.id });
+        setMedicines(meds || []);
+        setFilteredMedicines(meds || []);
       } catch (error) {
         console.error("Error fetching pharmacy data:", error);
       } finally {
@@ -49,24 +61,47 @@ export default function PharmacyDetailPage() {
     };
 
     fetchData();
-    getPharmacyMedicines({ pharmacyId: params.id }).then(setMedicines);
   }, [params.id]);
+
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredMedicines(medicines);
+      return;
+    }
+    
+    const lowerQuery = searchQuery.toLowerCase();
+    const filtered = medicines.filter((med: any) => 
+      med.name.toLowerCase().includes(lowerQuery) || 
+      med.manufacturer.toLowerCase().includes(lowerQuery)
+    );
+    setFilteredMedicines(filtered);
+  }, [searchQuery, medicines]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-1 bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6">
+          <Button 
+            variant="link" 
+            className="p-0 h-auto text-muted-foreground hover:text-primary mb-4 flex items-center gap-1" 
+            onClick={() => router.back()}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to results
+          </Button>
+
           {/* Pharmacy Header */}
           {loading ? (
             <PharmacyDetailSkeleton />
           ) : (
-            <Card className="mb-6">
-              <CardHeader>
+            <Card className="mb-6 relative overflow-hidden">
+              <CardHeader className="relative z-10">
                 <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-                  <div>
+                  <div className="flex-1">
                     <CardTitle className="text-2xl mb-2">
                       {pharmacy.pharmacyName}
                     </CardTitle>
+                    
                     <div className="space-y-2">
                       <div className="flex items-center text-gray-600">
                         <MapPin className="h-4 w-4 mr-2" />
@@ -102,13 +137,26 @@ export default function PharmacyDetailPage() {
           {/* Medicines Section */}
           <Card>
             <CardHeader>
-              <CardTitle>Available Medicines</CardTitle>
-              <CardDescription>
-                Current stock of medicines available at this pharmacy
-              </CardDescription>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle>Available Medicines</CardTitle>
+                  <CardDescription>
+                    Current stock of medicines available at this pharmacy
+                  </CardDescription>
+                </div>
+                <div className="relative w-full md:w-72">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search medicines..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <MedicineTable medicines={medicines} />
+              <MedicineTable medicines={filteredMedicines} />
             </CardContent>
           </Card>
         </div>

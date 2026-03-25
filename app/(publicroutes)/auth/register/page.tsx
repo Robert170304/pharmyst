@@ -162,13 +162,11 @@ export default function RegisterPage() {
                 <AddressAutocomplete
                   id="address"
                   value={formData.address.location}
-                  onSelect={(placeObject) => {
-                    console.log("🚀 ~ RegisterPage ~ val 1:", placeObject);
-                    if (!placeObject.geometry) return;
+                  onSelect={(locationItem) => {
                     handleInputChange("address", {
-                      location: placeObject.formatted_address,
-                      lat: placeObject?.geometry.location.lat(),
-                      lng: placeObject?.geometry.location.lng(),
+                      location: locationItem.name,
+                      lat: locationItem.lat,
+                      lng: locationItem.lng,
                     });
                   }}
                   placeholder="123 Main Street, City, State, ZIP"

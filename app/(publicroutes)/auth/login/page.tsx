@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { loginPharmacy } from "@/lib/api";
 import useAppStore from "@/store/useAppStore";
@@ -24,7 +24,6 @@ import Loader from "@/components/ui/loader";
 
 export default function LoginPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { setUserData } = useAppStore();
 
@@ -55,8 +54,7 @@ export default function LoginPage() {
         });
 
         // Redirect to intended destination or dashboard
-        const redirectTo = searchParams.get("redirect") || "/dashboard";
-        router.push(redirectTo);
+        router.push("/dashboard");
       })
       .catch(() => setLoading(false));
   };

@@ -23,7 +23,6 @@ import Loader from "@/components/ui/loader";
 
 export default function ManagePharmacy() {
   const { userData, setUserData } = useAppStore();
-  console.log("🚀 ~ ManagePharmacy ~ userData:", userData);
 
   // Form state for pharmacy details
   const [form, setForm] = useState({
@@ -140,10 +139,6 @@ export default function ManagePharmacy() {
                   <Phone className="h-4 w-4 mr-2" />
                   {userData.phone}
                 </div>
-                <div className="flex items-center text-gray-600">
-                  <Clock className="h-4 w-4 mr-2" />
-                  userData.hours
-                </div>
               </div>
             </div>
           </div>
@@ -187,15 +182,13 @@ export default function ManagePharmacy() {
               <AddressAutocomplete
                 id="address"
                 value={form.address.location || ""}
-                onSelect={(placeObject) => {
-                  console.log("🚀 ~ RegisterPage ~ val 1:", placeObject);
-                  if (!placeObject.geometry) return;
+                onSelect={(locationItem) => {
                   setForm((f) => ({
                     ...f,
                     address: {
-                      location: placeObject.formatted_address,
-                      lat: placeObject?.geometry.location.lat(),
-                      lng: placeObject?.geometry.location.lng(),
+                      location: locationItem.name,
+                      lat: locationItem.lat,
+                      lng: locationItem.lng,
                     },
                   }));
                 }}
